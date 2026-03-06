@@ -312,6 +312,8 @@ const ICE_OPTS   = ['去冰','微冰','少冰','正常冰'];
 
 let selDrink=null, selSize=null, selSugar='正常', selIce='正常冰', selCat='飲中甜品';
 
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbyC_YTeonyIwpxUARTe_uSyFHL0_7Quf21-5nP1HrBBGzdYj3A4rXuNi_ocEtwXw2s/exec';
+
 function getOrders(){ try{ return JSON.parse(localStorage.getItem('macuOrders')||'[]'); }catch{ return []; } }
 function saveOrders(a){ localStorage.setItem('macuOrders', JSON.stringify(a)); }
 
@@ -391,27 +393,52 @@ function submitOrder(){
   const price = selSize==='M'?selDrink.M : selSize==='L'?selDrink.L : selDrink.B;
   const sizeLabel = selSize==='M'?'中杯' : selSize==='L'?'大杯':'瓶裝';
   const note=document.getElementById('orderNote').value.trim();
-  const arr=getOrders();
-  arr.push({
+  const order={
     id:Date.now(), name,
     drinkId:selDrink.id, drinkName:selDrink.name, drinkCat:selDrink.cat,
     size:sizeLabel, price, sugar:selSugar, ice:selIce, note,
     paid:false,
     time:new Date().toLocaleTimeString('zh-TW',{hour:'2-digit',minute:'2-digit'})
-  });
+  };
+  // 存到 localStorage
+  const arr=getOrders();
+  arr.push(order);
   saveOrders(arr);
+  // 送到 Google 試算表
+  showToast('⏳ 傳送中...','#E8A020');
+  fetch(GAS_URL, {
+    method:'POST',
+    body: JSON.stringify({...order, action:'add'})
+  })
+  .then(r=>r.json())
+  .then(d=>{
+    if(d.status==='ok') showToast('✅ 訂單已成功送出！');
+    else showToast('⚠️ 傳送失敗，請重試','#C0392B');
+  })
+  .catch(()=>showToast('⚠️ 網路錯誤，請重試','#C0392B'));
   selDrink=null; selSize=null;
   document.getElementById('orderName').value='';
   document.getElementById('orderNote').value='';
   document.getElementById('optCard').style.display='none';
   renderDrinks();
-  showToast('✅ 訂單送出成功！');
 }
 
 function renderAdmin(){
-  const arr=getOrders();
-  renderTotals(arr); renderSum(arr); renderList(arr);
-  document.getElementById('orderCount').textContent=arr.length?`（共 ${arr.length} 筆）`:'';
+  document.getElementById('sumGrid').innerHTML='<div style="font-size:13px;opacity:.6">載入中...</div>';
+  document.getElementById('ordersList').innerHTML='';
+  fetch(GAS_URL)
+    .then(r=>r.json())
+    .then(data=>{
+      const arr = data.orders || [];
+      renderTotals(arr); renderSum(arr); renderList(arr);
+      document.getElementById('orderCount').textContent=arr.length?`（共 ${arr.length} 筆）`:'';
+    })
+    .catch(()=>{
+      // fallback to localStorage if offline
+      const arr=getOrders();
+      renderTotals(arr); renderSum(arr); renderList(arr);
+      document.getElementById('orderCount').textContent='（離線模式）';
+    });
 }
 
 function renderTotals(arr){
@@ -530,15 +557,20 @@ function lockAdmin(){
 function togglePaid(id, paid){
   requireAuth('請輸入密碼才能更改付款狀態', ()=>{
     const arr=getOrders(), o=arr.find(x=>x.id===id);
-    if(o){ o.paid=paid; saveOrders(arr); renderAdmin(); }
+    if(o){
+      o.paid=paid; saveOrders(arr);
+      fetch(GAS_URL,{method:'POST',body:JSON.stringify({action:'setPaid',id,paid})}).catch(()=>{});
+      renderAdmin();
+    }
   });
-  if(!adminUnlocked) renderAdmin(); // revert checkbox visual
+  if(!adminUnlocked) renderAdmin();
 }
 
 function deleteOrder(id){
   requireAuth('請輸入密碼才能刪除訂單', ()=>{
     const arr = getOrders().filter(x=>x.id!==id);
     saveOrders(arr);
+    fetch(GAS_URL,{method:'POST',body:JSON.stringify({action:'delete',id})}).catch(()=>{});
     renderAdmin();
     showToast('🗑️ 訂單已刪除');
   });
@@ -559,11 +591,12 @@ function clearOrders(){
       return;
     }
     localStorage.removeItem('macuOrders');
+    fetch(GAS_URL,{method:'POST',body:JSON.stringify({action:'clearAll'})})
+      .then(()=>{ renderAdmin(); showToast('🗑️ 已清除所有訂單'); })
+      .catch(()=>{ renderAdmin(); showToast('⚠️ 試算表清除失敗','#C0392B'); });
     btn.textContent='🗑️ 清除所有訂單';
     btn.classList.remove('confirm-state');
     btn.dataset.confirm='0';
-    renderAdmin();
-    showToast('🗑️ 已清除所有訂單');
   });
 }
 
@@ -572,7 +605,13 @@ function switchPage(p,btn){
   document.querySelectorAll('.nav-tab').forEach(el=>el.classList.remove('active'));
   document.getElementById('page-'+p).classList.add('active');
   btn.classList.add('active');
-  if(p==='admin') renderAdmin();
+  if(p==='admin'){
+    renderAdmin();
+    if(window._autoRefresh) clearInterval(window._autoRefresh);
+    window._autoRefresh = setInterval(renderAdmin, 30000);
+  } else {
+    if(window._autoRefresh) clearInterval(window._autoRefresh);
+  }
 }
 
 function showToast(msg,bg){
