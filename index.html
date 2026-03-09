@@ -505,24 +505,7 @@ function renderList(arr){
     const an=a.note?1:0, bn=b.note?1:0;
     if(bn!==an) return bn-an;
     return b.id-a.id;
-  }).forEach(o=>{
-    const row=document.createElement('div');
-    row.className='order-row'+(o.paid?' paid':'')+(o.note?' has-note':'');
-    row.dataset.id=o.id;
-    row.innerHTML=`
-      <div class="or-info">
-        <div><span class="or-name">👤 ${o.name}</span><span class="or-time">${o.time}</span></div>
-        <div class="or-drink">🧋 ${o.drinkName}</div>
-        <div class="or-opts"><span class="or-size">${o.size} $${o.price}</span>${o.sugar} · ${o.ice}</div>
-        ${o.note?`<div class="or-note">📝 ${o.note}</div>`:''}
-      </div>
-      <div class="pay-col">
-        <input type="checkbox" class="pay-chk" ${o.paid?'checked':''} onchange="togglePaid(${o.id},this.checked)">
-        <div class="pay-txt">${o.paid?'✅已付':'未付'}</div>
-        <button class="del-btn" onclick="deleteOrder(${o.id})">🗑️</button>
-      </div>`;
-    list.appendChild(row);
-  });
+  }).forEach(o=>list.appendChild(makeOrderRow(o)));
 }
 
 const ADMIN_PW = '214';   // ← 改這裡設定你的密碼
@@ -597,11 +580,19 @@ function togglePaid(id, paid){
 
 function deleteOrder(id){
   requireAuth('請輸入密碼才能刪除訂單', ()=>{
-    const arr = getOrders().filter(x=>x.id!==id);
-    saveOrders(arr);
-    fetch(GAS_URL,{method:'POST',body:JSON.stringify({action:'delete',id})}).catch(()=>{});
-    renderAdmin();
-    showToast('🗑️ 訂單已刪除');
+    showToast('⏳ 刪除中...','#E8A020');
+    fetch(GAS_URL,{method:'POST',body:JSON.stringify({action:'delete',id})})
+      .then(r=>r.json())
+      .then(()=>{
+        // 試算表成功後才移除畫面
+        const row = document.querySelector(`[data-id="${id}"]`);
+        if(row) row.remove();
+        const allRows = [...document.querySelectorAll('.order-row')];
+        if(!allRows.length) document.getElementById('ordersList').innerHTML='<div class="empty-state"><div class="ei">🧋</div><p>還沒有訂單</p></div>';
+        silentRefresh();
+        showToast('🗑️ 訂單已刪除');
+      })
+      .catch(()=>showToast('⚠️ 刪除失敗，請重試','#C0392B'));
   });
 }
 
@@ -620,13 +611,79 @@ function clearOrders(){
       return;
     }
     localStorage.removeItem('macuOrders');
+    // 即時清空畫面
+    document.getElementById('ordersList').innerHTML='<div class="empty-state"><div class="ei">🧋</div><p>還沒有訂單</p></div>';
+    document.getElementById('sumGrid').innerHTML='<div style="font-size:13px;opacity:.6">尚無訂單</div>';
+    document.getElementById('tc-cups').textContent='0';
+    document.getElementById('tc-total').textContent='$0';
+    document.getElementById('tc-paid').textContent='$0';
+    document.getElementById('tc-unpaid').textContent='$0';
+    document.getElementById('tc-paid-n').textContent='';
+    document.getElementById('tc-unpaid-n').textContent='';
+    document.getElementById('orderCount').textContent='';
     fetch(GAS_URL,{method:'POST',body:JSON.stringify({action:'clearAll'})})
-      .then(()=>{ renderAdmin(); showToast('🗑️ 已清除所有訂單'); })
-      .catch(()=>{ renderAdmin(); showToast('⚠️ 試算表清除失敗','#C0392B'); });
+      .then(()=>showToast('🗑️ 已清除所有訂單'))
+      .catch(()=>showToast('⚠️ 試算表清除失敗','#C0392B'));
     btn.textContent='🗑️ 清除所有訂單';
     btn.classList.remove('confirm-state');
     btn.dataset.confirm='0';
   });
+}
+
+function makeOrderRow(o){
+  const row=document.createElement('div');
+  row.className='order-row'+(o.paid?' paid':'')+(o.note?' has-note':'');
+  row.dataset.id=o.id;
+  row.innerHTML=`
+    <div class="or-info">
+      <div><span class="or-name">👤 ${o.name}</span><span class="or-time">${o.time}</span></div>
+      <div class="or-drink">🧋 ${o.drinkName}</div>
+      <div class="or-opts"><span class="or-size">${o.size} $${o.price}</span>${o.sugar} · ${o.ice}</div>
+      ${o.note?`<div class="or-note">📝 ${o.note}</div>`:''}
+    </div>
+    <div class="pay-col">
+      <input type="checkbox" class="pay-chk" ${o.paid?'checked':''} onchange="togglePaid(${o.id},this.checked)">
+      <div class="pay-txt">${o.paid?'✅已付':'未付'}</div>
+      <button class="del-btn" onclick="deleteOrder(${o.id})">🗑️</button>
+    </div>`;
+  return row;
+}
+
+function silentRefresh(){
+  fetch(GAS_URL)
+    .then(r=>r.json())
+    .then(data=>{
+      const arr = data.orders || [];
+      renderTotals(arr);
+      renderSum(arr);
+      document.getElementById('orderCount').textContent=arr.length?`（共 ${arr.length} 筆）`:'';
+
+      const list = document.getElementById('ordersList');
+      const serverIds = new Set(arr.map(o=>String(o.id)));
+      const domRows = [...list.querySelectorAll('.order-row')];
+
+      // 移除試算表已不存在的訂單
+      domRows.forEach(r=>{ if(!serverIds.has(r.dataset.id)) r.remove(); });
+
+      // 補上新增的訂單、更新已存在訂單的付款狀態
+      const existingIds = new Set([...list.querySelectorAll('.order-row')].map(r=>r.dataset.id));
+      arr.forEach(o=>{
+        if(!existingIds.has(String(o.id))){
+          list.prepend(makeOrderRow(o));
+        } else {
+          // 更新付款狀態
+          const row = list.querySelector(`[data-id="${o.id}"]`);
+          if(row){
+            const chk = row.querySelector('.pay-chk');
+            const txt = row.querySelector('.pay-txt');
+            if(chk && chk.checked !== o.paid){ chk.checked = o.paid; }
+            if(txt) txt.textContent = o.paid ? '✅已付' : '未付';
+            if(o.paid){ row.classList.add('paid'); } else { row.classList.remove('paid'); }
+          }
+        }
+      });
+    })
+    .catch(()=>{});
 }
 
 function switchPage(p,btn){
@@ -637,7 +694,7 @@ function switchPage(p,btn){
   if(p==='admin'){
     renderAdmin();
     if(window._autoRefresh) clearInterval(window._autoRefresh);
-    window._autoRefresh = setInterval(renderAdmin, 30000);
+    window._autoRefresh = setInterval(silentRefresh, 30000);
   } else {
     if(window._autoRefresh) clearInterval(window._autoRefresh);
   }
