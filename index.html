@@ -398,7 +398,7 @@ function submitOrder(){
     drinkId:selDrink.id, drinkName:selDrink.name, drinkCat:selDrink.cat,
     size:sizeLabel, price, sugar:selSugar, ice:selIce, note,
     paid:false,
-    time:new Date().toLocaleTimeString('zh-TW',{hour:'2-digit',minute:'2-digit'})
+    time:new Date().toLocaleString('zh-TW',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hour12:false}).replace(/\//g,'/').replace(' ','  ')
   };
   // 存到 localStorage
   const arr=getOrders();
@@ -458,22 +458,31 @@ function renderSum(arr){
   const box=document.getElementById('sumGrid');
   if(!arr.length){ box.innerHTML='<div style="font-size:13px;opacity:.6">尚無訂單</div>'; return; }
 
-  // 先按飲料名稱分組
   const drinkMap={};
   arr.forEach(o=>{
     const dk = `${o.drinkName}|${o.size}`;
-    if(!drinkMap[dk]) drinkMap[dk]={ name:o.drinkName, size:o.size, total:0, variants:{} };
+    if(!drinkMap[dk]) drinkMap[dk]={ name:o.drinkName, size:o.size, total:0, variants:{}, noted:[] };
     drinkMap[dk].total++;
-    const vk=`${o.sugar}・${o.ice}`;
-    drinkMap[dk].variants[vk]=(drinkMap[dk].variants[vk]||0)+1;
+    if(o.note){
+      // 有備註的單獨列出
+      drinkMap[dk].noted.push({vk:`${o.sugar}・${o.ice}`, note:o.note});
+    } else {
+      const vk=`${o.sugar}・${o.ice}`;
+      drinkMap[dk].variants[vk]=(drinkMap[dk].variants[vk]||0)+1;
+    }
   });
 
   box.innerHTML='';
   Object.values(drinkMap).sort((a,b)=>b.total-a.total).forEach(drink=>{
     const el=document.createElement('div'); el.className='sum-item';
+    // 一般疊加行
     const varRows = Object.entries(drink.variants)
       .sort((a,b)=>b[1]-a[1])
       .map(([vk,cnt])=>`<div class="sum-var"><span>${vk}</span><span class="sum-var-cnt">×${cnt}</span></div>`)
+      .join('');
+    // 有備註的單獨行
+    const noteRows = drink.noted
+      .map(({vk,note})=>`<div class="sum-var" style="border-left:2px solid #E8A020;"><span>${vk}（${note}）</span><span class="sum-var-cnt">×1</span></div>`)
       .join('');
     el.innerHTML=`
       <div class="sum-top">
@@ -483,7 +492,7 @@ function renderSum(arr){
         </div>
         <div class="sum-count">${drink.total}</div>
       </div>
-      <div class="sum-vars">${varRows}</div>`;
+      <div class="sum-vars">${varRows}${noteRows}</div>`;
     box.appendChild(el);
   });
 }
@@ -556,12 +565,11 @@ function lockAdmin(){
 
 function togglePaid(id, paid){
   requireAuth('請輸入密碼才能更改付款狀態', ()=>{
-    const arr=getOrders(), o=arr.find(x=>x.id===id);
-    if(o){
-      o.paid=paid; saveOrders(arr);
-      fetch(GAS_URL,{method:'POST',body:JSON.stringify({action:'setPaid',id,paid})}).catch(()=>{});
-      renderAdmin();
-    }
+    showToast('⏳ 更新中...','#E8A020');
+    fetch(GAS_URL,{method:'POST',body:JSON.stringify({action:'setPaid',id,paid})})
+      .then(r=>r.json())
+      .then(()=>{ renderAdmin(); showToast(paid?'✅ 已標記付款':'已取消付款'); })
+      .catch(()=>{ renderAdmin(); showToast('⚠️ 更新失敗','#C0392B'); });
   });
   if(!adminUnlocked) renderAdmin();
 }
