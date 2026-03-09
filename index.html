@@ -508,6 +508,7 @@ function renderList(arr){
   }).forEach(o=>{
     const row=document.createElement('div');
     row.className='order-row'+(o.paid?' paid':'')+(o.note?' has-note':'');
+    row.dataset.id=o.id;
     row.innerHTML=`
       <div class="or-info">
         <div><span class="or-name">👤 ${o.name}</span><span class="or-time">${o.time}</span></div>
@@ -565,11 +566,31 @@ function lockAdmin(){
 
 function togglePaid(id, paid){
   requireAuth('請輸入密碼才能更改付款狀態', ()=>{
-    showToast('⏳ 更新中...','#E8A020');
+    // 立即更新畫面，不等試算表
+    const row = document.querySelector(`[data-id="${id}"]`);
+    if(row){
+      const chk = row.querySelector('.pay-chk');
+      const txt = row.querySelector('.pay-txt');
+      if(chk) chk.checked = paid;
+      if(txt) txt.textContent = paid ? '✅已付' : '未付';
+      if(paid){ row.classList.add('paid'); } else { row.classList.remove('paid'); }
+    }
+    // 更新統計數字
+    const allRows = document.querySelectorAll('.order-row');
+    let paidAmt=0, unpaidAmt=0, paidN=0, unpaidN=0;
+    allRows.forEach(r=>{
+      const priceEl = r.querySelector('.or-size');
+      const price = priceEl ? parseInt(priceEl.textContent.replace(/[^0-9]/g,''))||0 : 0;
+      const isPaid = r.classList.contains('paid');
+      if(isPaid){ paidAmt+=price; paidN++; } else { unpaidAmt+=price; unpaidN++; }
+    });
+    document.getElementById('tc-paid').textContent=`$${paidAmt}`;
+    document.getElementById('tc-unpaid').textContent=`$${unpaidAmt}`;
+    document.getElementById('tc-paid-n').textContent=paidN?`${paidN} 人已付`:'';
+    document.getElementById('tc-unpaid-n').textContent=unpaidN?`${unpaidN} 人未付`:'';
+    // 背景同步試算表
     fetch(GAS_URL,{method:'POST',body:JSON.stringify({action:'setPaid',id,paid})})
-      .then(r=>r.json())
-      .then(()=>{ renderAdmin(); showToast(paid?'✅ 已標記付款':'已取消付款'); })
-      .catch(()=>{ renderAdmin(); showToast('⚠️ 更新失敗','#C0392B'); });
+      .catch(()=>showToast('⚠️ 同步失敗，請重整','#C0392B'));
   });
   if(!adminUnlocked) renderAdmin();
 }
