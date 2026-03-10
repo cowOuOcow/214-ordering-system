@@ -335,7 +335,7 @@ const ICE_OPTS   = ['去冰','微冰','少冰','正常冰'];
 
 let selDrink=null, selSize=null, selSugar='正常', selIce='正常冰', selCat='飲中甜品';
 
-const GAS_URL = 'https://script.google.com/macros/s/AKfycbyC_YTeonyIwpxUARTe_uSyFHL0_7Quf21-5nP1HrBBGzdYj3A4rXuNi_ocEtwXw2s/exec';
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbxLn7OTnxRDK-5geUh1su-8IHWOyUb2qBKqVTmaPf4Mrci0Yj4dOHA5v3o1yihLkH7E/exec';
 
 function getOrders(){ try{ return JSON.parse(localStorage.getItem('macuOrders')||'[]'); }catch{ return []; } }
 function saveOrders(a){ localStorage.setItem('macuOrders', JSON.stringify(a)); }
@@ -347,7 +347,8 @@ function buildOrder(){
   cats.forEach(c=>{
     const b=document.createElement('button');
     b.className='cat-btn'+(c===selCat?' active':'');
-    b.textContent=c; b.onclick=()=>{ selCat=c; buildOrder(); };
+    b.textContent=c; b.onclick=()=>{ selCat=c; loadOrderingState();
+buildOrder(); };
     catRow.appendChild(b);
   });
   renderDrinks();
@@ -408,16 +409,31 @@ function buildChips(id, opts, cur, fn){
   });
 }
 
+function applyOrderingState(open){
+  document.getElementById('toggleLabel').textContent = open ? '接單中' : '已截止';
+  document.getElementById('orderToggle').checked = open;
+  document.getElementById('orderClosed').style.display = open ? 'none' : 'block';
+  document.getElementById('submitBtn').style.display = open ? 'block' : 'none';
+}
+
 function toggleOrdering(open){
   requireAuth(open ? '請輸入密碼才能開啟點餐' : '請輸入密碼才能關閉點餐', ()=>{
-    document.getElementById('toggleLabel').textContent = open ? '接單中' : '已截止';
-    document.getElementById('orderToggle').checked = open;
-    document.getElementById('orderClosed').style.display = open ? 'none' : 'block';
-    document.getElementById('submitBtn').style.display = open ? 'block' : 'none';
+    applyOrderingState(open);
     showToast(open ? '✅ 已開啟點餐' : '🔒 已關閉點餐', open ? '#27AE60' : '#555');
+    // 同步到試算表
+    fetch(GAS_URL,{method:'POST',body:JSON.stringify({action:'setStatus',open})})
+      .catch(()=>showToast('⚠️ 狀態同步失敗','#C0392B'));
   });
   // 若驗證未通過，還原 toggle 狀態
   if(!adminUnlocked) document.getElementById('orderToggle').checked = !open;
+}
+
+// 頁面載入時從試算表讀取接單狀態
+function loadOrderingState(){
+  fetch(GAS_URL+'?action=getStatus')
+    .then(r=>r.json())
+    .then(d=>{ applyOrderingState(d.open !== false); })
+    .catch(()=>{});  // 失敗就維持預設開啟
 }
 
 function submitOrder(){
@@ -722,6 +738,18 @@ function silentRefresh(){
 }
 
 function switchPage(p,btn){
+  if(p==='admin' && !adminUnlocked){
+    requireAuth('請輸入管理員密碼', ()=>{
+      document.querySelectorAll('.page').forEach(el=>el.classList.remove('active'));
+      document.querySelectorAll('.nav-tab').forEach(el=>el.classList.remove('active'));
+      document.getElementById('page-admin').classList.add('active');
+      btn.classList.add('active');
+      renderAdmin();
+      if(window._autoRefresh) clearInterval(window._autoRefresh);
+      window._autoRefresh = setInterval(silentRefresh, 30000);
+    });
+    return;
+  }
   document.querySelectorAll('.page').forEach(el=>el.classList.remove('active'));
   document.querySelectorAll('.nav-tab').forEach(el=>el.classList.remove('active'));
   document.getElementById('page-'+p).classList.add('active');
