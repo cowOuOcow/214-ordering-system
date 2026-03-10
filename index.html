@@ -338,7 +338,7 @@ const ICE_OPTS   = ['去冰','微冰','少冰','正常冰'];
 
 let selDrink=null, selSize=null, selSugar='正常', selIce='正常冰', selCat='飲中甜品';
 
-const GAS_URL = 'https://script.google.com/macros/s/AKfycbxLn7OTnxRDK-5geUh1su-8IHWOyUb2qBKqVTmaPf4Mrci0Yj4dOHA5v3o1yihLkH7E/exec';
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbx6qkjWERB9gTnQKVWynTnI4zzpeSsjx8dpq3Hae_-ROLGdijIPlVPiiuneTTpAKjoh/exec';
 
 function getOrders(){ try{ return JSON.parse(localStorage.getItem('macuOrders')||'[]'); }catch{ return []; } }
 function saveOrders(a){ localStorage.setItem('macuOrders', JSON.stringify(a)); }
@@ -431,10 +431,16 @@ function toggleOrdering(open){
 }
 
 // 頁面載入時從試算表讀取接單狀態，之後每 10 秒檢查一次
+let _lastReloadTs = 0;
 function loadOrderingState(){
   fetch(GAS_URL+'?action=getStatus')
     .then(r=>r.json())
-    .then(d=>{ applyOrderingState(d.open !== false); })
+    .then(d=>{
+      applyOrderingState(d.open !== false);
+      const ts = Number(d.reloadTs) || 0;
+      if(_lastReloadTs === 0){ _lastReloadTs = ts; return; }
+      if(ts > _lastReloadTs){ location.reload(); }
+    })
     .catch(()=>{});
 }
 setInterval(loadOrderingState, 10000);
@@ -444,6 +450,16 @@ function submitOrder(){
   if(!name)    { showToast('❗ 請輸入名字','#C0392B'); return; }
   if(!selDrink){ showToast('❗ 請選擇飲料','#C0392B'); return; }
   if(!selSize) { showToast('❗ 請選擇杯型','#C0392B'); return; }
+  // 送出前再確認一次接單狀態
+  fetch(GAS_URL+'?action=getStatus')
+    .then(r=>r.json())
+    .then(d=>{
+      if(d.open === false){ applyOrderingState(false); showToast('🔒 點餐已截止，無法送出','#C0392B'); return; }
+      doSubmit(name);
+    })
+    .catch(()=>doSubmit(name)); // 網路失敗就直接送
+}
+function doSubmit(name){
   const price = selSize==='M'?selDrink.M : selSize==='L'?selDrink.L : selDrink.B;
   const sizeLabel = selSize==='M'?'中杯' : selSize==='L'?'大杯':'瓶裝';
   const note=document.getElementById('orderNote').value.trim();
