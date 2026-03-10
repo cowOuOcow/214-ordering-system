@@ -19,6 +19,19 @@ nav{background:#D0232A;display:flex;align-items:center;justify-content:space-bet
 .nav-tab.active{background:#fff;color:#D0232A;border-color:#fff;}
 .nav-tab:hover:not(.active){background:rgba(255,255,255,.15);color:#fff;}
 
+.toggle-wrap{display:flex;align-items:center;gap:8px;}
+.toggle-label{font-size:12px;font-weight:700;color:rgba(255,255,255,.85);}
+.toggle-switch{position:relative;width:44px;height:24px;flex-shrink:0;}
+.toggle-switch input{opacity:0;width:0;height:0;}
+.toggle-slider{position:absolute;inset:0;background:#fff3;border-radius:24px;cursor:pointer;transition:.2s;}
+.toggle-slider::before{content:’’;position:absolute;width:18px;height:18px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.2s;}
+.toggle-switch input:checked+.toggle-slider{background:#27AE60;}
+.toggle-switch input:checked+.toggle-slider::before{transform:translateX(20px);}
+
+.order-closed{background:linear-gradient(135deg,#555,#333);border-radius:16px;padding:22px 20px;margin-bottom:20px;text-align:center;color:#fff;}
+.order-closed h2{font-size:20px;font-weight:900;margin-bottom:6px;}
+.order-closed p{font-size:14px;opacity:.75;}
+
 .page{display:none;} .page.active{display:block;}
 
 .order-wrap{max-width:660px;margin:0 auto;padding:20px 14px 80px;}
@@ -133,6 +146,13 @@ nav{background:#D0232A;display:flex;align-items:center;justify-content:space-bet
   <div class="logo-area">
     <div class="logo-text">KSHS 214</div>
   </div>
+  <div class="toggle-wrap">
+    <span class="toggle-label" id="toggleLabel">接單中</span>
+    <label class="toggle-switch">
+      <input type="checkbox" id="orderToggle" checked onchange="toggleOrdering(this.checked)">
+      <span class="toggle-slider"></span>
+    </label>
+  </div>
   <div class="nav-tabs">
     <button class="nav-tab active" onclick="switchPage('order',this)">點餐</button>
     <button class="nav-tab" onclick="switchPage('admin',this)">管理</button>
@@ -180,8 +200,11 @@ nav{background:#D0232A;display:flex;align-items:center;justify-content:space-bet
     <div class="note-hint">⚠️ 加料請打在備註（例：加珍珠、加椰果）</div>
   </div>
 
-<button class="submit-btn" onclick="submitOrder()">送出訂單 🛎️</button>
-
+  <div id="orderClosed" class="order-closed" style="display:none;">
+    <h2>🔒 已截止點餐</h2>
+    <p>股長已關閉點餐，無法送出新訂單</p>
+  </div>
+  <button class="submit-btn" id="submitBtn" onclick="submitOrder()">送出訂單 🛎️</button>
 </div>
 </div>
 
@@ -383,6 +406,18 @@ function buildChips(id, opts, cur, fn){
     b.textContent=o; b.onclick=()=>fn(o);
     div.appendChild(b);
   });
+}
+
+function toggleOrdering(open){
+  requireAuth(open ? '請輸入密碼才能開啟點餐' : '請輸入密碼才能關閉點餐', ()=>{
+    document.getElementById('toggleLabel').textContent = open ? '接單中' : '已截止';
+    document.getElementById('orderToggle').checked = open;
+    document.getElementById('orderClosed').style.display = open ? 'none' : 'block';
+    document.getElementById('submitBtn').style.display = open ? 'block' : 'none';
+    showToast(open ? '✅ 已開啟點餐' : '🔒 已關閉點餐', open ? '#27AE60' : '#555');
+  });
+  // 若驗證未通過，還原 toggle 狀態
+  if(!adminUnlocked) document.getElementById('orderToggle').checked = !open;
 }
 
 function submitOrder(){
