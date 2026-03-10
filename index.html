@@ -428,13 +428,14 @@ function toggleOrdering(open){
   if(!adminUnlocked) document.getElementById('orderToggle').checked = !open;
 }
 
-// 頁面載入時從試算表讀取接單狀態
+// 頁面載入時從試算表讀取接單狀態，之後每 10 秒檢查一次
 function loadOrderingState(){
   fetch(GAS_URL+'?action=getStatus')
     .then(r=>r.json())
     .then(d=>{ applyOrderingState(d.open !== false); })
-    .catch(()=>{});  // 失敗就維持預設開啟
+    .catch(()=>{});
 }
+setInterval(loadOrderingState, 10000);
 
 function submitOrder(){
   const name=document.getElementById('orderName').value.trim();
