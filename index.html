@@ -185,7 +185,7 @@ nav{background:#D0232A;display:flex;align-items:center;justify-content:space-bet
 
   <div class="card">
     <div class="card-title">你的名字</div>
-    <input class="field-input" id="orderName" type="text" placeholder="請輸入姓名">
+    <input class="field-input" id="orderName" type="text" placeholder="請輸入姓名" oninput="localStorage.setItem('savedName',this.value)">
   </div>
 
   <div class="cat-wrap"><div class="cat-row" id="catRow"></div></div>
@@ -379,6 +379,8 @@ function getOrders(){ try{ return JSON.parse(localStorage.getItem('macuOrders')|
 function saveOrders(a){ localStorage.setItem('macuOrders', JSON.stringify(a)); }
 
 function buildOrder(){
+  const savedName=localStorage.getItem('savedName');
+  if(savedName){ const el=document.getElementById('orderName'); if(el&&!el.value) el.value=savedName; }
   const cats=[...new Set(MENU.map(d=>d.cat))];
   const catRow=document.getElementById('catRow');
   catRow.innerHTML='';
