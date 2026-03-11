@@ -188,6 +188,11 @@ nav{background:#D0232A;display:flex;align-items:center;justify-content:space-bet
     <input class="field-input" id="orderName" type="text" placeholder="請輸入姓名" oninput="localStorage.setItem('savedName',this.value)">
   </div>
 
+  <div id="quickOrderWrap" style="display:none;margin-bottom:14px;">
+    <div style="font-size:13px;font-weight:700;color:#D0232A;margin-bottom:8px;">⚡ 快速點上次的</div>
+    <div id="quickOrderList" style="display:flex;flex-direction:column;gap:7px;"></div>
+  </div>
+
   <div class="cat-wrap"><div class="cat-row" id="catRow"></div></div>
   <div class="drink-grid" id="drinkGrid"></div>
 
@@ -379,6 +384,7 @@ function getOrders(){ try{ return JSON.parse(localStorage.getItem('macuOrders')|
 function saveOrders(a){ localStorage.setItem('macuOrders', JSON.stringify(a)); }
 
 function buildOrder(){
+  renderQuickOrders();
   const savedName=localStorage.getItem('savedName');
   if(savedName){ const el=document.getElementById('orderName'); if(el&&!el.value) el.value=savedName; }
   const savedClass=localStorage.getItem('savedClass');
@@ -539,12 +545,15 @@ function doSubmit(name){
     else showToast('⚠️ 傳送失敗，請重試','#C0392B');
   })
   .catch(()=>showToast('⚠️ 網路錯誤，請重試','#C0392B'));
+  // 記錄到快速點餐歷史
+  saveQuickOrder({drinkId:order.drinkId, drinkName:order.drinkName, drinkCat:order.drinkCat, size:selSize, sizeLabel:order.size, price:order.price, sugar:order.sugar, ice:order.ice, topping:order.topping});
   selDrink=null; selSize=null; selTopping=TOPPING_OPTS[0];
   document.getElementById('orderName').value='';
   document.getElementById('orderNote').value='';
   document.getElementById('orderClass').value='';
   document.getElementById('optCard').style.display='none';
   renderDrinks();
+  renderQuickOrders();
 }
 
 function renderAdmin(){
@@ -896,6 +905,62 @@ function toggleClassPaid(cls, checked){
   paid[cls] = checked;
   saveClassPaid(paid);
   renderPayment();
+}
+
+
+function getQuickOrders(){ try{ return JSON.parse(localStorage.getItem('quickOrders')||'[]'); }catch{ return []; } }
+
+function saveQuickOrder(o){
+  let list = getQuickOrders();
+  // 去重：相同飲料+杯型+糖+冰+加料就不重複加
+  const key = o.drinkId+'|'+o.size+'|'+o.sugar+'|'+o.ice+'|'+o.topping;
+  list = list.filter(x=> (x.drinkId+'|'+x.size+'|'+x.sugar+'|'+x.ice+'|'+x.topping) !== key);
+  list.unshift(o); // 最新的放最前
+  if(list.length > 5) list = list.slice(0,5);
+  localStorage.setItem('quickOrders', JSON.stringify(list));
+}
+
+function renderQuickOrders(){
+  const list = getQuickOrders();
+  const wrap = document.getElementById('quickOrderWrap');
+  const box = document.getElementById('quickOrderList');
+  if(!list.length){ wrap.style.display='none'; return; }
+  wrap.style.display='block';
+  box.innerHTML='';
+  list.forEach((o,i)=>{
+    const btn = document.createElement('button');
+    btn.style.cssText='width:100%;padding:10px 14px;background:#fff;border:1.5px solid #F0D8D0;border-radius:10px;text-align:left;cursor:pointer;font-family:inherit;transition:all .15s;display:flex;justify-content:space-between;align-items:center;';
+    btn.onmouseover=()=>btn.style.borderColor='#D0232A';
+    btn.onmouseout=()=>btn.style.borderColor='#F0D8D0';
+    const toppingText = o.topping && o.topping!=='不加料' ? ` · ${o.topping}` : '';
+    btn.innerHTML=`<div><div style="font-weight:700;font-size:14px;color:#2A1010;">🧋 ${o.drinkName}</div><div style="font-size:12px;color:#999;margin-top:3px;">${o.sizeLabel} · ${o.sugar} · ${o.ice}${toppingText}</div></div><div style="font-size:15px;font-weight:900;color:#D0232A;">$${o.price}</div>`;
+    btn.onclick=()=>applyQuickOrder(o);
+    box.appendChild(btn);
+  });
+}
+
+function applyQuickOrder(o){
+  // 找到飲料
+  const drink = MENU.find(d=>d.id===o.drinkId);
+  if(!drink){ showToast('⚠️ 找不到這個飲料','#C0392B'); return; }
+  // 切換到對應分類
+  selCat = drink.cat;
+  buildOrder();
+  // 選飲料
+  pickDrink(drink);
+  // 選杯型
+  selSize = o.size;
+  renderSizes(drink);
+  // 選糖冰
+  selSugar = o.sugar;
+  selIce = o.ice;
+  // 選加料
+  const topping = TOPPING_OPTS.find(t=>t.name===o.topping) || TOPPING_OPTS[0];
+  selTopping = topping;
+  refreshChips();
+  // 滾到規格卡片
+  document.getElementById('optCard').style.display='block';
+  document.getElementById('optCard').scrollIntoView({behavior:'smooth',block:'start'});
 }
 
 function showToast(msg,bg){
