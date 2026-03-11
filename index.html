@@ -159,6 +159,7 @@ nav{background:#D0232A;display:flex;align-items:center;justify-content:space-bet
   <div class="nav-tabs">
     <button class="nav-tab active" onclick="switchPage('order',this)">點餐</button>
     <button class="nav-tab" onclick="switchPage('admin',this)">管理</button>
+    <button class="nav-tab" onclick="switchPage('payment',this)">交錢</button>
   </div>
 </nav>
 
@@ -169,6 +170,17 @@ nav{background:#D0232A;display:flex;align-items:center;justify-content:space-bet
   <div class="hero">
     <div class="hero-text"><h1>MACU 點餐系統</h1><p>design by 蔡丞翔</p></div>
     <div class="hero-emoji">🧋</div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">班級</div>
+    <select class="field-input" id="orderClass">
+      <option value="">請選擇班級</option>
+      <option value="212">212</option>
+      <option value="214">214</option>
+      <option value="其他">其他</option>
+    </select>
+    <div style="font-size:12px;color:#999;margin-top:7px;">選「其他」請將班級打在名字前面</div>
   </div>
 
   <div class="card">
@@ -194,13 +206,18 @@ nav{background:#D0232A;display:flex;align-items:center;justify-content:space-bet
         <span class="opt-label">冰量</span>
         <div class="chips" id="iceChips"></div>
       </div>
+      <div class="opt-section">
+        <span class="opt-label">加料</span>
+        <div class="chips" id="toppingChips"></div>
+      </div>
     </div>
   </div>
 
   <div class="card" style="margin-bottom:14px">
     <div class="card-title">備註</div>
-    <textarea class="field-input" id="orderNote" style="min-height:64px;resize:vertical" placeholder="加料或特殊需求（可不填）"></textarea>
-    <div class="note-hint">⚠️ 加料請打在備註（例：加珍珠、加椰果）</div>
+    <textarea class="field-input" id="orderNote" style="min-height:64px;resize:vertical" placeholder="特殊需求（可不填）"></textarea>
+
+  <div style="font-size:12px;color:#C0392B;margin-top:10px;font-weight:600;line-height:1.6;">未於11點該節下課繳交費用者，將不為其訂購，11點截止。請各班派一位代表前來繳交費用。</div>
   </div>
 
   <div id="orderClosed" class="order-closed" style="display:none;">
@@ -253,6 +270,17 @@ nav{background:#D0232A;display:flex;align-items:center;justify-content:space-bet
 
   <div class="orders-head">所有訂單 <span id="orderCount" style="font-weight:400;font-size:13px;color:#999"></span></div>
   <div id="ordersList"></div>
+</div>
+</div>
+
+<!-- PAYMENT PAGE -->
+
+<div id="page-payment" class="page">
+<div class="admin-wrap">
+  <div class="admin-top">
+    <h2>💰 班級收款</h2>
+  </div>
+  <div id="paymentContent"><div style="text-align:center;padding:40px;color:#999">載入中...</div></div>
 </div>
 </div>
 
@@ -336,9 +364,16 @@ const MENU = [
 const SUGAR_OPTS = ['無糖','一分','微糖','半糖','八分','正常'];
 const ICE_OPTS   = ['去冰','微冰','少冰','正常冰'];
 
-let selDrink=null, selSize=null, selSugar='正常', selIce='正常冰', selCat='飲中甜品';
+const TOPPING_OPTS = [
+  {name:'不加料', price:0},
+  {name:'粉粿 +$10', price:10},
+  {name:'波霸 +$10', price:10},
+  {name:'椰果 +$10', price:10},
+  {name:'芝芝 +$20', price:20},
+];
+let selDrink=null, selSize=null, selSugar='正常', selIce='正常冰', selCat='飲中甜品', selTopping=TOPPING_OPTS[0];
 
-const GAS_URL = 'https://script.google.com/macros/s/AKfycbx6qkjWERB9gTnQKVWynTnI4zzpeSsjx8dpq3Hae_-ROLGdijIPlVPiiuneTTpAKjoh/exec';
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbywspFOQ2yDtADrsLRtZHZso9i1_1AY151kTZvArQuuWRbai9Bn86DjWaBkoEBkPcfE/exec';
 
 function getOrders(){ try{ return JSON.parse(localStorage.getItem('macuOrders')||'[]'); }catch{ return []; } }
 function saveOrders(a){ localStorage.setItem('macuOrders', JSON.stringify(a)); }
@@ -399,6 +434,16 @@ function renderSizes(d){
 function refreshChips(){
   buildChips('sugarChips', SUGAR_OPTS, selSugar, v=>{ selSugar=v; refreshChips(); });
   buildChips('iceChips',   ICE_OPTS,   selIce,   v=>{ selIce=v;   refreshChips(); });
+  buildToppingChips();
+}
+function buildToppingChips(){
+  const div=document.getElementById('toppingChips'); div.innerHTML='';
+  TOPPING_OPTS.forEach(t=>{
+    const b=document.createElement('button');
+    b.className='chip'+(selTopping.name===t.name?' selected':'');
+    b.textContent=t.name; b.onclick=()=>{ selTopping=t; buildToppingChips(); };
+    div.appendChild(b);
+  });
 }
 
 function buildChips(id, opts, cur, fn){
@@ -446,7 +491,9 @@ function loadOrderingState(){
 setInterval(loadOrderingState, 10000);
 
 function submitOrder(){
+  const cls=document.getElementById('orderClass').value;
   const name=document.getElementById('orderName').value.trim();
+  if(!cls)     { showToast('❗ 請選擇班級','#C0392B'); return; }
   if(!name)    { showToast('❗ 請輸入名字','#C0392B'); return; }
   if(!selDrink){ showToast('❗ 請選擇飲料','#C0392B'); return; }
   if(!selSize) { showToast('❗ 請選擇杯型','#C0392B'); return; }
@@ -460,13 +507,15 @@ function submitOrder(){
     .catch(()=>doSubmit(name)); // 網路失敗就直接送
 }
 function doSubmit(name){
-  const price = selSize==='M'?selDrink.M : selSize==='L'?selDrink.L : selDrink.B;
+  const cls=document.getElementById('orderClass').value;
+  const basePrice = selSize==='M'?selDrink.M : selSize==='L'?selDrink.L : selDrink.B;
+  const price = basePrice + selTopping.price;
   const sizeLabel = selSize==='M'?'中杯' : selSize==='L'?'大杯':'瓶裝';
   const note=document.getElementById('orderNote').value.trim();
   const order={
-    id:Date.now(), name,
+    id:Date.now(), name, cls,
     drinkId:selDrink.id, drinkName:selDrink.name, drinkCat:selDrink.cat,
-    size:sizeLabel, price, sugar:selSugar, ice:selIce, note,
+    size:sizeLabel, price, sugar:selSugar, ice:selIce, topping:selTopping.name, note,
     paid:false,
     time:new Date().toLocaleString('zh-TW',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hour12:false}).replace(/\//g,'/').replace(' ','  ')
   };
@@ -489,6 +538,7 @@ function doSubmit(name){
   selDrink=null; selSize=null;
   document.getElementById('orderName').value='';
   document.getElementById('orderNote').value='';
+  document.getElementById('orderClass').value='';
   document.getElementById('optCard').style.display='none';
   renderDrinks();
 }
@@ -705,9 +755,9 @@ function makeOrderRow(o){
   row.dataset.id=o.id;
   row.innerHTML=`
     <div class="or-info">
-      <div><span class="or-name">👤 ${o.name}</span><span class="or-time">${o.time}</span></div>
+      <div><span class="or-name">👤 ${o.name}</span>${o.cls?`<span style="font-size:11px;background:#FDECEA;color:#D0232A;border-radius:6px;padding:1px 7px;margin-left:5px;font-weight:700;">${o.cls}班</span>`:''}<span class="or-time">${o.time}</span></div>
       <div class="or-drink">🧋 ${o.drinkName}</div>
-      <div class="or-opts"><span class="or-size">${o.size} $${o.price}</span>${o.sugar} · ${o.ice}</div>
+      <div class="or-opts"><span class="or-size">${o.size} $${o.price}</span>${o.sugar} · ${o.ice}${o.topping&&o.topping!=='不加料'?` · <span style="color:#E8A020;font-weight:700;">${o.topping}</span>`:''}</div>
       ${o.note?`<div class="or-note">📝 ${o.note}</div>`:''}
     </div>
     <div class="pay-col">
@@ -764,9 +814,80 @@ function switchPage(p,btn){
     renderAdmin();
     if(window._autoRefresh) clearInterval(window._autoRefresh);
     window._autoRefresh = setInterval(silentRefresh, 30000);
+  } else if(p==='payment'){
+    renderPayment();
+    if(window._autoRefresh) clearInterval(window._autoRefresh);
   } else {
     if(window._autoRefresh) clearInterval(window._autoRefresh);
   }
+}
+
+const CLASS_LIST = ['212','214','其他'];
+// 班級已繳清狀態（存 localStorage）
+function getClassPaid(){ try{ return JSON.parse(localStorage.getItem('classFullPaid')||'{}'); }catch{ return {}; } }
+function saveClassPaid(o){ localStorage.setItem('classFullPaid', JSON.stringify(o)); }
+
+function renderPayment(){
+  const box = document.getElementById('paymentContent');
+  box.innerHTML = '<div style="text-align:center;padding:40px;color:#999">載入中...</div>';
+  fetch(GAS_URL)
+    .then(r=>r.json())
+    .then(data=>{
+      const orders = data.orders || [];
+      const paid = getClassPaid();
+      let html = '';
+      let grandTotal=0, grandPaid=0, grandUnpaid=0;
+
+      CLASS_LIST.forEach(cls=>{
+        const clsOrders = orders.filter(o=>o.cls===cls);
+        const total = clsOrders.reduce((s,o)=>s+(o.price||0),0);
+        const paidAmt = clsOrders.filter(o=>o.paid).reduce((s,o)=>s+(o.price||0),0);
+        const unpaidAmt = total - paidAmt;
+        grandTotal += total; grandPaid += paidAmt; grandUnpaid += unpaidAmt;
+        const isFullPaid = paid[cls] || false;
+        html += `
+        <div style="background:#fff;border:1.5px solid ${isFullPaid?'#9EE0B5':'#F0D8D0'};border-radius:14px;padding:18px 20px;margin-bottom:14px;${isFullPaid?'background:#F4FFF8;':''}">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+            <div style="font-size:18px;font-weight:900;">${cls} 班</div>
+            <div style="font-size:22px;font-weight:900;color:#D0232A;">$${total}</div>
+          </div>
+          <div style="display:flex;gap:10px;margin-bottom:14px;">
+            <div style="flex:1;background:#F4FFF8;border-radius:8px;padding:10px;text-align:center;">
+              <div style="font-size:11px;color:#27AE60;font-weight:700;">已繳</div>
+              <div style="font-size:18px;font-weight:900;color:#27AE60;">$${paidAmt}</div>
+            </div>
+            <div style="flex:1;background:#FFF9F5;border-radius:8px;padding:10px;text-align:center;">
+              <div style="font-size:11px;color:#E67E22;font-weight:700;">未繳</div>
+              <div style="font-size:18px;font-weight:900;color:#E67E22;">$${unpaidAmt}</div>
+            </div>
+          </div>
+          <label style="display:flex;align-items:center;gap:10px;cursor:pointer;padding:10px;background:${isFullPaid?'#E8F8EE':'#FFF3EE'};border-radius:8px;">
+            <input type="checkbox" ${isFullPaid?'checked':''} onchange="toggleClassPaid('${cls}',this.checked)"
+              style="width:20px;height:20px;accent-color:#27AE60;cursor:pointer;">
+            <span style="font-size:14px;font-weight:700;color:${isFullPaid?'#27AE60':'#E67E22'};">
+              ${isFullPaid?'✅ 已全部繳清':'⏳ 尚未全部繳清'}
+            </span>
+          </label>
+        </div>`;
+      });
+
+      // 總計卡片
+      html = `<div style="background:#D0232A;border-radius:14px;padding:18px;margin-bottom:20px;color:#fff;display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;text-align:center;">
+        <div><div style="font-size:11px;opacity:.7;margin-bottom:4px;">總應收</div><div style="font-size:22px;font-weight:900;">$${grandTotal}</div></div>
+        <div><div style="font-size:11px;opacity:.7;margin-bottom:4px;">已收</div><div style="font-size:22px;font-weight:900;color:#FFD580;">$${grandPaid}</div></div>
+        <div><div style="font-size:11px;opacity:.7;margin-bottom:4px;">未收</div><div style="font-size:22px;font-weight:900;color:#FFAA80;">$${grandUnpaid}</div></div>
+      </div>` + html;
+
+      box.innerHTML = html;
+    })
+    .catch(()=>{ box.innerHTML='<div style="text-align:center;padding:40px;color:#C0392B">⚠️ 載入失敗</div>'; });
+}
+
+function toggleClassPaid(cls, checked){
+  const paid = getClassPaid();
+  paid[cls] = checked;
+  saveClassPaid(paid);
+  renderPayment();
 }
 
 function showToast(msg,bg){
