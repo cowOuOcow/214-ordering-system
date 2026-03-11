@@ -839,7 +839,11 @@ function renderPayment(){
       let grandTotal=0, grandPaid=0, grandUnpaid=0;
 
       CLASS_LIST.forEach(cls=>{
-        const clsOrders = orders.filter(o=>o.cls===cls);
+        const clsOrders = orders.filter(o=>{
+          const oc = String(o.cls||'').trim();
+          if(cls==='其他') return oc==='' || oc==='其他';
+          return oc===cls;
+        });
         const total = clsOrders.reduce((s,o)=>s+(o.price||0),0);
         const paidAmt = clsOrders.filter(o=>o.paid).reduce((s,o)=>s+(o.price||0),0);
         const unpaidAmt = total - paidAmt;
