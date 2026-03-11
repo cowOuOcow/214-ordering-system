@@ -875,10 +875,12 @@ function renderPayment(){
             <div style="flex:1;background:#F4FFF8;border-radius:8px;padding:10px;text-align:center;">
               <div style="font-size:11px;color:#27AE60;font-weight:700;">已繳</div>
               <div style="font-size:18px;font-weight:900;color:#27AE60;">$${paidAmt}</div>
+              <div style="font-size:11px;color:#27AE60;margin-top:2px;">${clsOrders.filter(o=>o.paid).length} 杯</div>
             </div>
             <div style="flex:1;background:#FFF9F5;border-radius:8px;padding:10px;text-align:center;">
               <div style="font-size:11px;color:#E67E22;font-weight:700;">未繳</div>
               <div style="font-size:18px;font-weight:900;color:#E67E22;">$${unpaidAmt}</div>
+              <div style="font-size:11px;color:#E67E22;margin-top:2px;">${clsOrders.filter(o=>!o.paid).length} 杯</div>
             </div>
           </div>
           <label style="display:flex;align-items:center;gap:10px;cursor:pointer;padding:10px;background:${isFullPaid?'#E8F8EE':'#FFF3EE'};border-radius:8px;">
