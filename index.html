@@ -189,7 +189,7 @@ nav{background:#D0232A;display:flex;align-items:center;justify-content:space-bet
   </div>
 
   <div id="quickOrderWrap" style="display:none;margin-bottom:14px;">
-    <div style="font-size:13px;font-weight:700;color:#D0232A;margin-bottom:8px;">⚡ 快速點上次的</div>
+    <div style="font-size:13px;font-weight:700;color:#D0232A;margin-bottom:8px;">⚡ 歷屆試題</div>
     <div id="quickOrderList" style="display:flex;flex-direction:column;gap:7px;"></div>
   </div>
 
@@ -865,7 +865,10 @@ function renderPayment(){
         html += `
         <div style="background:#fff;border:1.5px solid ${isFullPaid?'#9EE0B5':'#F0D8D0'};border-radius:14px;padding:18px 20px;margin-bottom:14px;${isFullPaid?'background:#F4FFF8;':''}">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-            <div style="font-size:18px;font-weight:900;">${cls} 班</div>
+            <div>
+              <div style="font-size:18px;font-weight:900;">${cls} 班</div>
+              <div style="font-size:12px;color:#999;margin-top:2px;">共 ${clsOrders.length} 杯</div>
+            </div>
             <div style="font-size:22px;font-weight:900;color:#D0232A;">$${total}</div>
           </div>
           <div style="display:flex;gap:10px;margin-bottom:14px;">
@@ -889,7 +892,8 @@ function renderPayment(){
       });
 
       // 總計卡片
-      html = `<div style="background:#D0232A;border-radius:14px;padding:18px;margin-bottom:20px;color:#fff;display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;text-align:center;">
+      html = `<div style="background:#D0232A;border-radius:14px;padding:18px;margin-bottom:20px;color:#fff;display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;text-align:center;">
+        <div><div style="font-size:11px;opacity:.7;margin-bottom:4px;">總杯數</div><div style="font-size:22px;font-weight:900;">${orders.length}</div></div>
         <div><div style="font-size:11px;opacity:.7;margin-bottom:4px;">總應收</div><div style="font-size:22px;font-weight:900;">$${grandTotal}</div></div>
         <div><div style="font-size:11px;opacity:.7;margin-bottom:4px;">已收</div><div style="font-size:22px;font-weight:900;color:#FFD580;">$${grandPaid}</div></div>
         <div><div style="font-size:11px;opacity:.7;margin-bottom:4px;">未收</div><div style="font-size:22px;font-weight:900;color:#FFAA80;">$${grandUnpaid}</div></div>
