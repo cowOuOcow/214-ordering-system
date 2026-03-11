@@ -535,7 +535,7 @@ function doSubmit(name){
     else showToast('⚠️ 傳送失敗，請重試','#C0392B');
   })
   .catch(()=>showToast('⚠️ 網路錯誤，請重試','#C0392B'));
-  selDrink=null; selSize=null;
+  selDrink=null; selSize=null; selTopping=TOPPING_OPTS[0];
   document.getElementById('orderName').value='';
   document.getElementById('orderNote').value='';
   document.getElementById('orderClass').value='';
