@@ -176,6 +176,7 @@ nav{background:#D0232A;display:flex;align-items:center;justify-content:space-bet
     <div class="card-title">班級</div>
     <select class="field-input" id="orderClass" onchange="localStorage.setItem('savedClass',this.value)">
       <option value="">請選擇班級</option>
+      <option value="211">211</option>
       <option value="212">212</option>
       <option value="214">214</option>
       <option value="其他">其他</option>
@@ -835,7 +836,7 @@ function switchPage(p,btn){
   }
 }
 
-const CLASS_LIST = ['212','214','其他'];
+const CLASS_LIST = ['211','212','214','其他'];
 // 班級已繳清狀態（存 localStorage）
 function getClassPaid(){ try{ return JSON.parse(localStorage.getItem('classFullPaid')||'{}'); }catch{ return {}; } }
 function saveClassPaid(o){ localStorage.setItem('classFullPaid', JSON.stringify(o)); }
