@@ -188,6 +188,7 @@ nav{background:#D0232A;display:flex;align-items:center;justify-content:space-bet
       <option value="212">212</option>
       <option value="214">214</option>
       <option value="204">204</option>
+      <option value="205">205</option>
       <option value="217">217</option>
       <option value="其他">其他</option>
     </select>
@@ -295,7 +296,7 @@ nav{background:#D0232A;display:flex;align-items:center;justify-content:space-bet
 <div class="toast" id="toast"></div>
 
 <script>
-const MENU = [/* 菜單龐大，原封不動保持 */ 
+const MENU = [
   {id:1,  cat:'飲中甜品', name:'酪梨草莓甘露',    tag:'季節', M:null, L:90,   B:null},{id:2,  cat:'飲中甜品', name:'芝芝草莓果粒',    tag:'季節', M:null, L:90,   B:null},{id:3,  cat:'飲中甜品', name:'草莓果粒波波',    tag:'季節', M:null, L:90,   B:null},{id:4,  cat:'飲中甜品', name:'金絨芋泥鮮奶',    tag:'',     M:75,   L:null, B:null},{id:5,  cat:'飲中甜品', name:'芋泥波波鮮奶2.0', tag:'',     M:65,   L:null, B:null},{id:6,  cat:'飲中甜品', name:'濃厚芋泥鮮奶',    tag:'',     M:65,   L:null, B:null},{id:7,  cat:'飲中甜品', name:'巨峰葡萄冰沙',    tag:'季節', M:null, L:75,   B:null},{id:8,  cat:'飲中甜品', name:'芝芝葡萄果粒',    tag:'季節', M:null, L:85,   B:null},{id:9,  cat:'飲中甜品', name:'葡萄果粒波波',    tag:'季節', M:null, L:85,   B:null},{id:10, cat:'飲中甜品', name:'酪梨甘露',        tag:'季節', M:null, L:85,   B:null},{id:11, cat:'飲中甜品', name:'楊枝甘露2.0',     tag:'季節', M:null, L:85,   B:null},{id:12, cat:'飲中甜品', name:'芝芝芒果果粒',    tag:'季節', M:null, L:90,   B:null},{id:13, cat:'飲中甜品', name:'芒果果粒波波',    tag:'季節', M:null, L:85,   B:null},{id:14, cat:'飲中甜品', name:'蕃茄梅蜜',        tag:'季節', M:null, L:70,   B:100 },{id:15, cat:'飲中甜品', name:'蕃茄梅蜜波波',    tag:'季節', M:null, L:80,   B:110 },{id:20, cat:'果粒茶', name:'香橙果粒茶',        tag:'',   M:null, L:75, B:105 },{id:21, cat:'果粒茶', name:'柳橙果粒茶',        tag:'',   M:null, L:70, B:100 },{id:22, cat:'果粒茶', name:'葡萄柚果粒茶',      tag:'',   M:null, L:65, B:95  },{id:23, cat:'果粒茶', name:'葡萄柚果粒蜜茶',    tag:'',   M:null, L:65, B:95  },{id:24, cat:'果粒茶', name:'柳橙芒果果粒茶',    tag:'季節', M:null, L:75, B:null},{id:30, cat:'原味茶', name:'粉粿金萱',   tag:'', M:null, L:40, B:55},{id:31, cat:'原味茶', name:'紅萱烏龍',   tag:'', M:null, L:35, B:50},{id:32, cat:'原味茶', name:'高山金萱茶', tag:'', M:null, L:30, B:45},{id:33, cat:'原味茶', name:'翡翠綠茶',   tag:'', M:null, L:30, B:45},{id:34, cat:'原味茶', name:'錫蘭紅茶',   tag:'', M:null, L:30, B:45},{id:35, cat:'原味茶', name:'文山青茶',   tag:'', M:null, L:30, B:45},{id:36, cat:'原味茶', name:'古早味紅茶', tag:'', M:null, L:30, B:45},{id:37, cat:'原味茶', name:'紅萱雙Q',   tag:'', M:null, L:45, B:60},{id:38, cat:'原味茶', name:'金萱雙Q',   tag:'', M:null, L:40, B:55},{id:40, cat:'濃醇奶茶', name:'錫蘭奶茶',   tag:'',         M:null, L:50, B:75},{id:41, cat:'濃醇奶茶', name:'鐵觀音奶茶', tag:'',         M:null, L:50, B:75},{id:42, cat:'濃醇奶茶', name:'波霸奶茶',   tag:'',         M:null, L:50, B:75},{id:43, cat:'濃醇奶茶', name:'仙草凍奶茶', tag:'',         M:null, L:50, B:75},{id:44, cat:'濃醇奶茶', name:'玫瑰奶茶',   tag:'品牌限定', M:null, L:60, B:85},{id:45, cat:'濃醇奶茶', name:'阿華田',     tag:'',         M:null, L:60, B:85},{id:50, cat:'經典特調', name:'梅子冰茶', tag:'', M:null, L:35, B:50  },{id:51, cat:'經典特調', name:'梅子綠茶', tag:'', M:null, L:45, B:null},{id:52, cat:'經典特調', name:'多多綠茶', tag:'', M:null, L:50, B:80  },{id:60, cat:'鮮果茶飲', name:'粉粿柳橙紅萱', tag:'', M:null, L:75, B:105 },{id:61, cat:'鮮果茶飲', name:'柳橙紅萱',     tag:'', M:null, L:65, B:95  },{id:62, cat:'鮮果茶飲', name:'柚香紅萱',     tag:'', M:null, L:60, B:90  },{id:63, cat:'鮮果茶飲', name:'百香雙Q果',    tag:'', M:null, L:60, B:80  },{id:64, cat:'鮮果茶飲', name:'百香綠茶',     tag:'', M:null, L:55, B:75  },{id:65, cat:'鮮果茶飲', name:'百香多多',     tag:'', M:null, L:60, B:null},{id:66, cat:'鮮果茶飲', name:'翡翠柳橙',     tag:'', M:null, L:60, B:90  },{id:67, cat:'鮮果茶飲', name:'粉粿冰茶檸檬', tag:'', M:null, L:60, B:null},{id:68, cat:'鮮果茶飲', name:'冰茶檸檬',     tag:'', M:null, L:50, B:null},{id:69, cat:'鮮果茶飲', name:'蜂蜜檸檬',     tag:'', M:null, L:60, B:null},{id:70, cat:'鮮果茶飲', name:'柚香翡翠',     tag:'', M:null, L:55, B:85  },{id:80, cat:'芝芝系列', name:'芝芝金萱/錫蘭紅茶', tag:'', M:null, L:50, B:null},{id:81, cat:'芝芝系列', name:'芝芝金萱雙Q',       tag:'', M:null, L:60, B:null},{id:82, cat:'芝芝系列', name:'芝芝翡翠綠茶',      tag:'', M:null, L:50, B:null},{id:83, cat:'芝芝系列', name:'芝芝錫蘭奶茶',      tag:'', M:null, L:65, B:null},{id:84, cat:'芝芝系列', name:'芝芝阿華田',        tag:'', M:null, L:80, B:null},{id:100, cat:'鮮奶系列', name:'粉粿紅茶拿鐵',   tag:'',         M:null, L:65, B:95 },{id:101, cat:'鮮奶系列', name:'紅茶拿鐵',       tag:'',         M:null, L:65, B:95 },{id:102, cat:'鮮奶系列', name:'鐵觀音拿鐵',     tag:'',         M:null, L:65, B:95 },{id:103, cat:'鮮奶系列', name:'波霸紅茶拿鐵',   tag:'',         M:null, L:65, B:95 },{id:104, cat:'鮮奶系列', name:'仙草凍紅茶拿鐵', tag:'',         M:null, L:65, B:95 },{id:105, cat:'鮮奶系列', name:'阿華田拿鐵',     tag:'',         M:null, L:65, B:95 },{id:106, cat:'鮮奶系列', name:'玫瑰紅茶拿鐵',   tag:'品牌限定', M:null, L:70, B:100},{id:90, cat:'其他', name:'養身蕎麥寶石', tag:'無咖啡因', M:null, L:40, B:55},
 ];
 const SUGAR_OPTS = ['無糖','一分','微糖','半糖','八分','正常'];
@@ -306,7 +307,6 @@ const GAS_URL = 'https://script.google.com/macros/s/AKfycbywspFOQ2yDtADrsLRtZHZs
 function getOrders(){ try{ return JSON.parse(localStorage.getItem('macuOrders')||'[]'); }catch{ return []; } }
 function saveOrders(a){ localStorage.setItem('macuOrders', JSON.stringify(a)); }
 
-// 輔助同步付款狀態 (跨頁面)
 async function syncPaidStatus(id, paid, refreshAfter=true){
   return fetch(GAS_URL,{method:'POST',body:JSON.stringify({action:'setPaid',id,paid})})
     .then(r=>r.json())
@@ -320,14 +320,12 @@ async function syncPaidStatus(id, paid, refreshAfter=true){
     .catch(()=>showToast('⚠️ 同步失敗, 請重整','#C0392B'));
 }
 
-// 從試算表取得最新訂單
 async function fetchOrdersFromSheet(){
   const res = await fetch(GAS_URL);
   const data = await res.json();
   return data.orders || [];
 }
 
-// 改寫交錢頁面: 列出每個訂單的姓名+金額+checkbox
 async function renderPayment(){
   const box = document.getElementById('paymentContent');
   box.innerHTML = '<div style="text-align:center;padding:40px;color:#999">載入訂單...</div>';
@@ -335,7 +333,7 @@ async function renderPayment(){
   try {
     orders = await fetchOrdersFromSheet();
   } catch(e){ orders = getOrders(); }
-  const classGroups = ['211','212','214','204','217','其他'];
+  const classGroups = ['211','212','214','204','205','217','其他'];
   let html = `<div style="background:#D0232A;border-radius:14px;padding:18px;margin-bottom:20px;color:#fff;display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;text-align:center;">
         <div><div style="font-size:11px;opacity:.7;">總杯數</div><div style="font-size:22px;font-weight:900;">${orders.length}</div></div>
         <div><div style="font-size:11px;opacity:.7;">總應收</div><div style="font-size:22px;font-weight:900;">$${orders.reduce((s,o)=>s+(o.price||0),0)}</div></div>
@@ -375,24 +373,19 @@ async function renderPayment(){
     html += `</div></div></div>`;
   }
   box.innerHTML = html;
-  // 綁定每個checkbox事件
   document.querySelectorAll('#paymentContent .porder-chk').forEach(chk => {
     chk.addEventListener('change', async (e) => {
       e.stopPropagation();
       const orderId = parseInt(chk.getAttribute('data-id'));
       const newPaid = chk.checked;
-      // 需要管理員密碼驗證
       requireAuth('請輸入密碼以更新收款狀態', async () => {
-        // 呼叫後端更新
         try {
           await syncPaidStatus(orderId, newPaid, false);
-          // 重新刷新兩個頁面
           if(document.getElementById('page-admin').classList.contains('active')) renderAdmin();
           if(document.getElementById('page-payment').classList.contains('active')) await renderPayment();
           else renderPayment(); 
         } catch(err){ showToast('更新失敗','#C0392B'); chk.checked = !newPaid; }
       });
-      // 如果驗證未通過，把checkbox還原
       if(!adminUnlocked) chk.checked = !newPaid;
     });
   });
@@ -430,8 +423,7 @@ function applyOrderingState(open){ document.getElementById('toggleLabel').textCo
 function loadOrderingState(){ fetch(GAS_URL+'?action=getStatus').then(r=>r.json()).then(d=>{ applyOrderingState(d.open!==false); }).catch(()=>{}); }
 setInterval(loadOrderingState, 10000);
 
-// 其餘原有函數 (buildOrder, submitOrder, renderAdmin, 快速歷史等)
-function buildOrder(){ /* 同原始保留，限篇幅略簡但功能完整 */ 
+function buildOrder(){
   renderQuickOrders();
   const savedName=localStorage.getItem('savedName'); if(savedName){ const el=document.getElementById('orderName'); if(el&&!el.value) el.value=savedName; }
   const savedClass=localStorage.getItem('savedClass'); if(savedClass){ const el=document.getElementById('orderClass'); if(el&&!el.value) el.value=savedClass; }
