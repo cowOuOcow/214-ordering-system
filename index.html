@@ -1,493 +1,382 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
-<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-<meta http-equiv="Pragma" content="no-cache">
-<meta http-equiv="Expires" content="0">
-<title>MACU 果粒茶訂購系統</title>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
-<style>
-*{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:'Noto Sans TC',sans-serif;background:#FFF9F5;color:#2A1010;min-height:100vh;}
-
-nav{background:#D0232A;display:flex;align-items:center;justify-content:space-between;padding:0 20px;height:54px;position:sticky;top:0;z-index:200;box-shadow:0 2px 12px rgba(208,35,42,.12);}
-.logo-area{display:flex;align-items:baseline;gap:8px;}
-.logo-text{font-size:22px;font-weight:900;color:#fff;letter-spacing:1px;}
-.logo-sub{font-size:12px;color:rgba(255,255,255,.75);}
-.nav-tabs{display:flex;gap:4px;}
-.nav-tab{padding:6px 16px;border-radius:20px;border:1.5px solid rgba(255,255,255,.4);background:transparent;color:rgba(255,255,255,.8);font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;transition:all .15s;}
-.nav-tab.active{background:#fff;color:#D0232A;border-color:#fff;}
-.nav-tab:hover:not(.active){background:rgba(255,255,255,.15);color:#fff;}
-
-.toggle-wrap{display:flex;align-items:center;gap:8px;}
-.toggle-label{font-size:12px;font-weight:700;color:rgba(255,255,255,.85);}
-.toggle-switch{position:relative;width:44px;height:24px;flex-shrink:0;}
-.toggle-switch input{opacity:0;width:0;height:0;}
-.toggle-slider{position:absolute;inset:0;background:#fff3;border-radius:24px;cursor:pointer;transition:.2s;}
-.toggle-slider::before{content:'';position:absolute;width:18px;height:18px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.2s;}
-.toggle-switch input:checked+.toggle-slider{background:#27AE60;}
-.toggle-switch input:checked+.toggle-slider::before{transform:translateX(20px);}
-
-.order-closed{background:linear-gradient(135deg,#555,#333);border-radius:16px;padding:22px 20px;margin-bottom:20px;text-align:center;color:#fff;}
-.order-closed h2{font-size:20px;font-weight:900;margin-bottom:6px;}
-.order-closed p{font-size:14px;opacity:.75;}
-
-.page{display:none;} .page.active{display:block;}
-
-.order-wrap{max-width:660px;margin:0 auto;padding:20px 14px 80px;}
-.hero{background:linear-gradient(135deg,#A51A20,#D0232A);border-radius:16px;padding:22px 20px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;position:relative;overflow:hidden;}
-.hero::before{content:'';position:absolute;right:-20px;top:-20px;width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,.07);}
-.hero-text h1{color:#fff;font-size:22px;font-weight:900;}
-.hero-text p{color:rgba(255,255,255,.75);font-size:13px;margin-top:4px;}
-.hero-emoji{font-size:52px;opacity:.9;}
-
-.card{background:#fff;border:1.5px solid #F0D8D0;border-radius:12px;padding:16px;margin-bottom:14px;}
-.card-title{font-size:13px;font-weight:700;color:#D0232A;letter-spacing:.5px;margin-bottom:10px;}
-.field-input{width:100%;padding:10px 14px;border:1.5px solid #F0D8D0;border-radius:8px;font-size:15px;font-family:inherit;background:#FFF3EE;outline:none;transition:border .2s;}
-.field-input:focus{border-color:#D0232A;}
-
-.cat-wrap{overflow-x:auto;padding-bottom:2px;margin-bottom:14px;}
-.cat-wrap::-webkit-scrollbar{height:0;}
-.cat-row{display:flex;gap:7px;width:max-content;}
-.cat-btn{padding:6px 15px;border-radius:20px;border:1.5px solid #F0D8D0;background:#fff;font-family:inherit;font-size:13px;font-weight:600;color:#666;cursor:pointer;white-space:nowrap;transition:all .15s;}
-.cat-btn.active{background:#D0232A;border-color:#D0232A;color:#fff;}
-
-.drink-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:14px;}
-.drink-card{background:#fff;border:1.5px solid #F0D8D0;border-radius:11px;padding:13px 11px;cursor:pointer;position:relative;transition:all .15s;}
-.drink-card:hover{border-color:#D0232A;}
-.drink-card.selected{border-color:#D0232A;background:#FDECEA;}
-.drink-card.selected::after{content:'✓';position:absolute;top:7px;right:9px;background:#D0232A;color:#fff;width:18px;height:18px;border-radius:50%;font-size:10px;display:flex;align-items:center;justify-content:center;font-weight:900;}
-.drink-name{font-weight:700;font-size:13.5px;line-height:1.35;}
-.drink-prices{display:flex;gap:4px;margin-top:6px;flex-wrap:wrap;}
-.price-tag{font-size:11px;font-weight:600;color:#D0232A;background:#FDECEA;padding:2px 7px;border-radius:10px;}
-.drink-tag{font-size:10px;color:#fff;background:#E8A020;padding:1px 6px;border-radius:6px;margin-bottom:4px;display:inline-block;}
-
-.opt-section{margin-bottom:14px;}
-.opt-label{font-size:12px;font-weight:700;color:#999;text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:7px;}
-.chips{display:flex;flex-wrap:wrap;gap:6px;}
-.chip{padding:5px 13px;border-radius:20px;border:1.5px solid #F0D8D0;background:#FFF3EE;font-family:inherit;font-size:13px;font-weight:500;color:#2A1010;cursor:pointer;transition:all .15s;}
-.chip.selected{background:#2A1010;border-color:#2A1010;color:#fff;}
-
-.size-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px;margin-bottom:8px;}
-.size-card{border:2px solid #F0D8D0;border-radius:10px;padding:12px 8px;cursor:pointer;text-align:center;background:#fff;transition:all .15s;position:relative;}
-.size-card:hover:not(.disabled){border-color:#D0232A;}
-.size-card.selected{border-color:#D0232A;background:#FDECEA;}
-.size-card.selected::after{content:'✓';position:absolute;top:5px;right:7px;background:#D0232A;color:#fff;width:15px;height:15px;border-radius:50%;font-size:9px;display:flex;align-items:center;justify-content:center;font-weight:900;}
-.size-card.disabled{opacity:.3;cursor:not-allowed;pointer-events:none;}
-.size-icon{font-size:20px;}
-.size-label{font-size:13px;font-weight:700;margin-top:4px;}
-.size-price{font-size:14px;font-weight:900;color:#D0232A;margin-top:2px;}
-
-.note-hint{font-size:12px;color:#E8A020;margin-top:7px;font-weight:700;}
-
-.submit-btn{width:100%;padding:15px;background:#D0232A;border:none;border-radius:12px;color:#fff;font-size:16px;font-weight:700;font-family:inherit;cursor:pointer;transition:all .15s;box-shadow:0 4px 16px rgba(208,35,42,.12);}
-.submit-btn:hover{background:#A51A20;transform:translateY(-1px);}
-
-.admin-wrap{max-width:960px;margin:0 auto;padding:20px 14px 60px;}
-.admin-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:10px;}
-.admin-top h2{font-size:20px;font-weight:900;}
-.danger-btn{padding:9px 20px;background:#C0392B;border:none;border-radius:8px;color:#fff;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;}
-.danger-btn.confirm-state{background:#E67E22;}
-
-.total-bar{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px;}
-.total-card{background:#fff;border:1.5px solid #F0D8D0;border-radius:12px;padding:14px 10px;text-align:center;}
-.total-card.hi{background:#FDECEA;border-color:#D0232A;}
-.tc-icon{font-size:20px;margin-bottom:4px;}
-.tc-num{font-size:22px;font-weight:900;color:#D0232A;line-height:1.1;}
-.tc-label{font-size:11px;color:#999;margin-top:3px;font-weight:600;}
-.tc-sub{font-size:11px;color:#27AE60;font-weight:700;margin-top:2px;}
-.tc-sub.warn{color:#E67E22;}
-
-.summary-box{background:#D0232A;border-radius:14px;padding:18px;margin-bottom:20px;color:#fff;}
-.summary-box h3{font-size:15px;font-weight:700;margin-bottom:12px;color:rgba(255,255,255,.85);}
-.sum-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;}
-.sum-item{background:rgba(255,255,255,.14);border-radius:9px;padding:12px 14px;}
-.sum-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px;}
-.sum-name{font-weight:700;font-size:14px;}
-.sum-count{font-size:24px;font-weight:900;color:#FFD580;line-height:1;}
-.sum-vars{display:flex;flex-direction:column;gap:3px;margin-top:2px;}
-.sum-var{font-size:11.5px;color:rgba(255,255,255,.85);display:flex;justify-content:space-between;align-items:center;background:rgba(0,0,0,.12);border-radius:5px;padding:3px 8px;}
-.sum-var-cnt{font-weight:900;color:#FFD580;font-size:12px;margin-left:6px;flex-shrink:0;}
-
-.orders-head{font-size:15px;font-weight:700;margin-bottom:10px;}
-.order-row{background:#fff;border:1.5px solid #F0D8D0;border-radius:10px;padding:13px 15px;margin-bottom:8px;display:flex;align-items:flex-start;gap:12px;transition:all .2s;}
-.order-row.paid{border-color:#9EE0B5;background:#F4FFF8;}
-.order-row.has-note{border-color:#E8A020;border-left:4px solid #E8A020;}
-.or-info{flex:1;min-width:0;}
-.or-name{font-weight:700;font-size:15px;}
-.or-time{font-size:11px;color:#999;margin-left:6px;}
-.or-drink{font-size:14px;font-weight:700;color:#D0232A;margin-top:3px;}
-.or-size{display:inline-block;font-size:11px;color:#D0232A;background:#FDECEA;padding:1px 8px;border-radius:8px;margin-right:6px;font-weight:600;}
-.or-opts{font-size:13px;color:#777;margin-top:3px;}
-.or-note{font-size:12px;color:#E8A020;margin-top:4px;font-weight:700;}
-.pay-col{display:flex;flex-direction:column;align-items:center;gap:3px;flex-shrink:0;}
-.pay-chk{width:20px;height:20px;accent-color:#27AE60;cursor:pointer;}
-.pay-txt{font-size:11px;color:#999;}
-.del-btn{margin-top:4px;background:none;border:1.5px solid #f5c0bc;border-radius:6px;padding:2px 6px;font-size:13px;cursor:pointer;color:#C0392B;transition:all .15s;}
-.del-btn:hover{background:#FDECEA;}
-
-.empty-state{text-align:center;padding:56px 20px;color:#999;}
-.empty-state .ei{font-size:52px;margin-bottom:12px;}
-
-.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#27AE60;color:#fff;padding:11px 26px;border-radius:30px;font-size:14px;font-weight:600;opacity:0;transition:opacity .3s;pointer-events:none;z-index:999;white-space:nowrap;}
-.toast.show{opacity:1;}
-
-@media(max-width:480px){
-.total-bar{grid-template-columns:1fr 1fr;}
-.size-card{padding:10px 4px;}
-.size-icon{font-size:17px;}
-}
-
-/* 交錢頁面訂單表格樣式 */
-.payment-order-list{margin-top:12px;background:#fff5f0;border-radius:12px;overflow:hidden;}
-.payment-order-item{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border-bottom:1px solid #F0D8D0;background:#fff;}
-.payment-order-item:last-child{border-bottom:none;}
-.porder-left{flex:1;min-width:0;}
-.porder-name{font-weight:700;font-size:14px;}
-.porder-detail{font-size:11px;color:#777;margin-top:3px;}
-.porder-price{font-weight:800;color:#D0232A;font-size:14px;margin:0 12px;}
-.porder-chk{width:20px;height:20px;accent-color:#27AE60;cursor:pointer;flex-shrink:0;}
-.class-header{background:#fff3ed;border-radius:12px;margin-bottom:16px;padding:6px 0 0 0;}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>飲料訂購系統</title>
+  <style>
+    :root {
+      --primary: #c93b2b;
+      --primary-hover: #a82e20;
+      --bg: #f8f9fa;
+      --card-bg: #ffffff;
+      --text: #333333;
+      --text-muted: #666666;
+      --border: #e2e8f0;
+      --badge: #fff1f0;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body { background-color: var(--bg); color: var(--text); padding: 16px; line-height: 1.5; }
+    .container { max-width: 640px; margin: 0 auto; }
+    .card { background: var(--card-bg); border-radius: 12px; padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin-bottom: 20px; }
+    h1 { font-size: 1.5rem; text-align: center; color: var(--primary); margin-bottom: 4px; }
+    .status-banner { text-align: center; font-size: 0.9rem; margin-bottom: 16px; color: var(--text-muted); }
+    .status-closed { color: #d93025; font-weight: bold; }
+    .form-group { margin-bottom: 14px; }
+    label { display: block; font-size: 0.9rem; font-weight: 600; margin-bottom: 6px; }
+    input, select, textarea {
+      width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 0.95rem; background: #fff;
+    }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .topping-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 8px; }
+    .topping-item { display: flex; align-items: center; font-size: 0.85rem; border: 1px solid var(--border); padding: 6px 10px; border-radius: 6px; cursor: pointer; }
+    .topping-item input { width: auto; margin-right: 6px; }
+    .price-tag { font-size: 1.2rem; font-weight: bold; color: var(--primary); text-align: right; margin: 12px 0; }
+    .btn {
+      width: 100%; padding: 12px; border: none; border-radius: 8px; background: var(--primary); color: #fff;
+      font-size: 1rem; font-weight: 600; cursor: pointer; transition: 0.2s;
+    }
+    .btn:hover { background: var(--primary-hover); }
+    .btn:disabled { background: #ccc; cursor: not-allowed; }
+    .order-list { margin-top: 20px; font-size: 0.9rem; }
+    .order-item { border-bottom: 1px solid var(--border); padding: 10px 0; display: flex; justify-content: space-between; align-items: center; }
+    .tag { display: inline-block; padding: 2px 6px; border-radius: 4px; font-size: 0.75rem; margin-right: 4px; background: #eee; }
+    .tag-paid { background: #e6f4ea; color: #137333; }
+    .tag-unpaid { background: #fce8e6; color: #c5221f; }
+  </style>
 </head>
 <body>
 
-<nav>
-  <div class="logo-area">
-    <div class="logo-text">KSHS 214</div>
-  </div>
-  <div class="toggle-wrap">
-    <span class="toggle-label" id="toggleLabel">接單中</span>
-    <label class="toggle-switch">
-      <input type="checkbox" id="orderToggle" checked onchange="toggleOrdering(this.checked)">
-      <span class="toggle-slider"></span>
-    </label>
-  </div>
-  <div class="nav-tabs">
-    <button class="nav-tab active" onclick="switchPage('order',this)">點餐</button>
-    <button class="nav-tab" onclick="switchPage('admin',this)">管理</button>
-    <button class="nav-tab" onclick="switchPage('payment',this)">交錢</button>
-  </div>
-</nav>
+<div class="container">
+  <div class="card">
+    <h1>飲料點餐單</h1>
+    <div id="statusText" class="status-banner">載入系統狀態中...</div>
 
-<!-- ORDER PAGE -->
-<div id="page-order" class="page active">
-<div class="order-wrap">
-  <div class="hero">
-    <div class="hero-text"><h1>MACU 點餐系統</h1><p>design by 蔡丞翔</p></div>
-    <div class="hero-emoji">🧋</div>
+    <form id="orderForm">
+      <div class="grid-2">
+        <div class="form-group">
+          <label>姓名 / 稱呼 *</label>
+          <input type="text" id="name" required placeholder="例如：王小明">
+        </div>
+        <div class="form-group">
+          <label>座號 / 備註資訊</label>
+          <input type="text" id="cls" placeholder="例如：01">
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="form-group">
+          <label>飲品分類</label>
+          <select id="categorySelect"></select>
+        </div>
+        <div class="form-group">
+          <label>選擇品項 *</label>
+          <select id="itemSelect" required></select>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="form-group">
+          <label>規格容量 *</label>
+          <select id="sizeSelect"></select>
+        </div>
+        <div class="form-group">
+          <label>甜度 *</label>
+          <select id="sugarSelect"></select>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="form-group">
+          <label>冰塊 *</label>
+          <select id="iceSelect"></select>
+        </div>
+        <div class="form-group">
+          <label>備註</label>
+          <input type="text" id="note" placeholder="無特殊需求可留空">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>加料選項</label>
+        <div class="topping-grid" id="toppingsContainer"></div>
+      </div>
+
+      <div class="price-tag">小計：NT$ <span id="displayPrice">0</span></div>
+      <button type="submit" id="submitBtn" class="btn">送出訂單</button>
+    </form>
   </div>
 
   <div class="card">
-    <div class="card-title">班級</div>
-    <select class="field-input" id="orderClass" onchange="localStorage.setItem('savedClass',this.value)">
-      <option value="">請選擇班級</option>
-      <option value="211">211</option>
-      <option value="212">212</option>
-      <option value="214">214</option>
-      <option value="204">204</option>
-      <option value="205">205</option>
-      <option value="217">217</option>
-      <option value="其他">其他</option>
-    </select>
-    <div style="font-size:12px;color:#999;margin-top:7px;">選「其他」請將班級打在名字前面</div>
-  </div>
-
-  <div class="card">
-    <div class="card-title">你的名字</div>
-    <input class="field-input" id="orderName" type="text" placeholder="請輸入姓名" oninput="localStorage.setItem('savedName',this.value)">
-  </div>
-
-  <div id="quickOrderWrap" style="display:none;margin-bottom:14px;">
-    <div style="font-size:13px;font-weight:700;color:#D0232A;margin-bottom:8px;">⚡ 歷屆試題</div>
-    <div id="quickOrderList" style="display:flex;flex-direction:column;gap:7px;"></div>
-  </div>
-
-  <div class="cat-wrap"><div class="cat-row" id="catRow"></div></div>
-  <div class="drink-grid" id="drinkGrid"></div>
-
-  <div id="optCard" style="display:none">
-    <div class="card">
-      <div class="card-title" id="optTitle">規格選擇</div>
-      <div class="opt-section">
-        <span class="opt-label">杯型 / 瓶裝</span>
-        <div class="size-row" id="sizeRow"></div>
-      </div>
-      <div class="opt-section">
-        <span class="opt-label">糖度</span>
-        <div class="chips" id="sugarChips"></div>
-      </div>
-      <div class="opt-section">
-        <span class="opt-label">冰量</span>
-        <div class="chips" id="iceChips"></div>
-      </div>
-      <div class="opt-section">
-        <span class="opt-label">加料</span>
-        <div class="chips" id="toppingChips"></div>
-      </div>
-    </div>
-  </div>
-
-  <div class="card" style="margin-bottom:14px">
-    <div class="card-title">備註</div>
-    <textarea class="field-input" id="orderNote" style="min-height:64px;resize:vertical" placeholder="特殊需求（可不填）"></textarea>
-  <div style="font-size:12px;color:#C0392B;margin-top:10px;font-weight:600;line-height:1.6;">未於11點該節下課繳交費用者，將不為其訂購，11點截止。請各班派一位代表前來繳交費用。</div>
-  </div>
-
-  <div id="orderClosed" class="order-closed" style="display:none;">
-    <h2>🔒 已截止點餐</h2>
-    <p>股長已關閉點餐，無法送出新訂單</p>
-  </div>
-  <button class="submit-btn" id="submitBtn" onclick="submitOrder()">送出訂單 🛎️</button>
-</div>
-</div>
-
-<!-- 密碼彈窗 -->
-<div id="adminLock" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:500;align-items:center;justify-content:center;">
-  <div style="background:#fff;border-radius:16px;padding:32px 28px;width:300px;text-align:center;box-shadow:0 8px 40px rgba(0,0,0,.25);">
-    <div style="font-size:36px;margin-bottom:12px;">🔒</div>
-    <div style="font-weight:900;font-size:18px;margin-bottom:4px;">管理員驗證</div>
-    <div id="pwDesc" style="font-size:13px;color:#999;margin-bottom:20px;"></div>
-    <input id="pwInput" type="password" placeholder="請輸入密碼"
-      style="width:100%;padding:10px 14px;border:1.5px solid #F0D8D0;border-radius:8px;font-size:15px;font-family:inherit;outline:none;margin-bottom:10px;"
-      onkeydown="if(event.key==='Enter')checkPw()">
-    <div id="pwError" style="font-size:12px;color:#C0392B;min-height:16px;margin-bottom:8px;"></div>
-    <div style="display:flex;gap:8px;">
-      <button onclick="closeLock()" style="flex:1;padding:12px;background:#eee;border:none;border-radius:10px;color:#555;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;">取消</button>
-      <button onclick="checkPw()" style="flex:2;padding:12px;background:#D0232A;border:none;border-radius:10px;color:#fff;font-size:15px;font-weight:700;font-family:inherit;cursor:pointer;">確認</button>
-    </div>
+    <h2 style="font-size: 1.1rem; margin-bottom: 12px;">目前已送出訂單</h2>
+    <div id="orderList" class="order-list">讀取清單中...</div>
   </div>
 </div>
-
-<!-- ADMIN PAGE -->
-<div id="page-admin" class="page">
-<div class="admin-wrap">
-  <div class="admin-top">
-    <h2>📋 訂單管理</h2>
-    <button class="danger-btn" id="clearBtn" data-confirm="0" onclick="clearOrders()">🗑️ 清除所有訂單</button>
-  </div>
-  <div class="total-bar">
-    <div class="total-card hi"><div class="tc-icon">🧋</div><div class="tc-num" id="tc-cups">0</div><div class="tc-label">總杯數</div></div>
-    <div class="total-card hi"><div class="tc-icon">💰</div><div class="tc-num" id="tc-total">$0</div><div class="tc-label">總金額</div></div>
-    <div class="total-card"><div class="tc-icon">✅</div><div class="tc-num" id="tc-paid">$0</div><div class="tc-label">已收金額</div><div class="tc-sub" id="tc-paid-n"></div></div>
-    <div class="total-card"><div class="tc-icon">⏳</div><div class="tc-num" id="tc-unpaid" style="color:#E67E22">$0</div><div class="tc-label">未收金額</div><div class="tc-sub warn" id="tc-unpaid-n"></div></div>
-  </div>
-  <div class="summary-box">
-    <h3>📊 飲料統計</h3>
-    <div class="sum-grid" id="sumGrid"><div style="font-size:13px;opacity:.6">尚無訂單</div></div>
-  </div>
-  <div class="orders-head">所有訂單 <span id="orderCount" style="font-weight:400;font-size:13px;color:#999"></span></div>
-  <div id="ordersList"></div>
-</div>
-</div>
-
-<!-- PAYMENT PAGE (改版：列出名字+金額+同步checkbox) -->
-<div id="page-payment" class="page">
-<div class="admin-wrap">
-  <div class="admin-top">
-    <h2>💰 班級收款</h2>
-  </div>
-  <div id="paymentContent"><div style="text-align:center;padding:40px;color:#999">載入中...</div></div>
-</div>
-</div>
-
-<div class="toast" id="toast"></div>
 
 <script>
-const MENU = [
-  {id:1,  cat:'飲中甜品', name:'酪梨草莓甘露',    tag:'季節', M:null, L:90,   B:null},{id:2,  cat:'飲中甜品', name:'芝芝草莓果粒',    tag:'季節', M:null, L:90,   B:null},{id:3,  cat:'飲中甜品', name:'草莓果粒波波',    tag:'季節', M:null, L:90,   B:null},{id:4,  cat:'飲中甜品', name:'金絨芋泥鮮奶',    tag:'',     M:75,   L:null, B:null},{id:5,  cat:'飲中甜品', name:'芋泥波波鮮奶2.0', tag:'',     M:65,   L:null, B:null},{id:6,  cat:'飲中甜品', name:'濃厚芋泥鮮奶',    tag:'',     M:65,   L:null, B:null},{id:7,  cat:'飲中甜品', name:'巨峰葡萄冰沙',    tag:'季節', M:null, L:75,   B:null},{id:8,  cat:'飲中甜品', name:'芝芝葡萄果粒',    tag:'季節', M:null, L:85,   B:null},{id:9,  cat:'飲中甜品', name:'葡萄果粒波波',    tag:'季節', M:null, L:85,   B:null},{id:10, cat:'飲中甜品', name:'酪梨甘露',        tag:'季節', M:null, L:85,   B:null},{id:11, cat:'飲中甜品', name:'楊枝甘露2.0',     tag:'季節', M:null, L:85,   B:null},{id:12, cat:'飲中甜品', name:'芝芝芒果果粒',    tag:'季節', M:null, L:90,   B:null},{id:13, cat:'飲中甜品', name:'芒果果粒波波',    tag:'季節', M:null, L:85,   B:null},{id:14, cat:'飲中甜品', name:'蕃茄梅蜜',        tag:'季節', M:null, L:70,   B:100 },{id:15, cat:'飲中甜品', name:'蕃茄梅蜜波波',    tag:'季節', M:null, L:80,   B:110 },{id:20, cat:'果粒茶', name:'香橙果粒茶',        tag:'',   M:null, L:75, B:105 },{id:21, cat:'果粒茶', name:'柳橙果粒茶',        tag:'',   M:null, L:70, B:100 },{id:22, cat:'果粒茶', name:'葡萄柚果粒茶',      tag:'',   M:null, L:65, B:95  },{id:23, cat:'果粒茶', name:'葡萄柚果粒蜜茶',    tag:'',   M:null, L:65, B:95  },{id:24, cat:'果粒茶', name:'柳橙芒果果粒茶',    tag:'季節', M:null, L:75, B:null},{id:30, cat:'原味茶', name:'粉粿金萱',   tag:'', M:null, L:40, B:55},{id:31, cat:'原味茶', name:'紅萱烏龍',   tag:'', M:null, L:35, B:50},{id:32, cat:'原味茶', name:'高山金萱茶', tag:'', M:null, L:30, B:45},{id:33, cat:'原味茶', name:'翡翠綠茶',   tag:'', M:null, L:30, B:45},{id:34, cat:'原味茶', name:'錫蘭紅茶',   tag:'', M:null, L:30, B:45},{id:35, cat:'原味茶', name:'文山青茶',   tag:'', M:null, L:30, B:45},{id:36, cat:'原味茶', name:'古早味紅茶', tag:'', M:null, L:30, B:45},{id:37, cat:'原味茶', name:'紅萱雙Q',   tag:'', M:null, L:45, B:60},{id:38, cat:'原味茶', name:'金萱雙Q',   tag:'', M:null, L:40, B:55},{id:40, cat:'濃醇奶茶', name:'錫蘭奶茶',   tag:'',         M:null, L:50, B:75},{id:41, cat:'濃醇奶茶', name:'鐵觀音奶茶', tag:'',         M:null, L:50, B:75},{id:42, cat:'濃醇奶茶', name:'波霸奶茶',   tag:'',         M:null, L:50, B:75},{id:43, cat:'濃醇奶茶', name:'仙草凍奶茶', tag:'',         M:null, L:50, B:75},{id:44, cat:'濃醇奶茶', name:'玫瑰奶茶',   tag:'品牌限定', M:null, L:60, B:85},{id:45, cat:'濃醇奶茶', name:'阿華田',     tag:'',         M:null, L:60, B:85},{id:50, cat:'經典特調', name:'梅子冰茶', tag:'', M:null, L:35, B:50  },{id:51, cat:'經典特調', name:'梅子綠茶', tag:'', M:null, L:45, B:null},{id:52, cat:'經典特調', name:'多多綠茶', tag:'', M:null, L:50, B:80  },{id:60, cat:'鮮果茶飲', name:'粉粿柳橙紅萱', tag:'', M:null, L:75, B:105 },{id:61, cat:'鮮果茶飲', name:'柳橙紅萱',     tag:'', M:null, L:65, B:95  },{id:62, cat:'鮮果茶飲', name:'柚香紅萱',     tag:'', M:null, L:60, B:90  },{id:63, cat:'鮮果茶飲', name:'百香雙Q果',    tag:'', M:null, L:60, B:80  },{id:64, cat:'鮮果茶飲', name:'百香綠茶',     tag:'', M:null, L:55, B:75  },{id:65, cat:'鮮果茶飲', name:'百香多多',     tag:'', M:null, L:60, B:null},{id:66, cat:'鮮果茶飲', name:'翡翠柳橙',     tag:'', M:null, L:60, B:90  },{id:67, cat:'鮮果茶飲', name:'粉粿冰茶檸檬', tag:'', M:null, L:60, B:null},{id:68, cat:'鮮果茶飲', name:'冰茶檸檬',     tag:'', M:null, L:50, B:null},{id:69, cat:'鮮果茶飲', name:'蜂蜜檸檬',     tag:'', M:null, L:60, B:null},{id:70, cat:'鮮果茶飲', name:'柚香翡翠',     tag:'', M:null, L:55, B:85  },{id:80, cat:'芝芝系列', name:'芝芝金萱/錫蘭紅茶', tag:'', M:null, L:50, B:null},{id:81, cat:'芝芝系列', name:'芝芝金萱雙Q',       tag:'', M:null, L:60, B:null},{id:82, cat:'芝芝系列', name:'芝芝翡翠綠茶',      tag:'', M:null, L:50, B:null},{id:83, cat:'芝芝系列', name:'芝芝錫蘭奶茶',      tag:'', M:null, L:65, B:null},{id:84, cat:'芝芝系列', name:'芝芝阿華田',        tag:'', M:null, L:80, B:null},{id:100, cat:'鮮奶系列', name:'粉粿紅茶拿鐵',   tag:'',         M:null, L:65, B:95 },{id:101, cat:'鮮奶系列', name:'紅茶拿鐵',       tag:'',         M:null, L:65, B:95 },{id:102, cat:'鮮奶系列', name:'鐵觀音拿鐵',     tag:'',         M:null, L:65, B:95 },{id:103, cat:'鮮奶系列', name:'波霸紅茶拿鐵',   tag:'',         M:null, L:65, B:95 },{id:104, cat:'鮮奶系列', name:'仙草凍紅茶拿鐵', tag:'',         M:null, L:65, B:95 },{id:105, cat:'鮮奶系列', name:'阿華田拿鐵',     tag:'',         M:null, L:65, B:95 },{id:106, cat:'鮮奶系列', name:'玫瑰紅茶拿鐵',   tag:'品牌限定', M:null, L:70, B:100},{id:90, cat:'其他', name:'養身蕎麥寶石', tag:'無咖啡因', M:null, L:40, B:55},
-];
-const SUGAR_OPTS = ['無糖','一分','微糖','半糖','八分','正常'];
-const ICE_OPTS   = ['去冰','微冰','少冰','正常冰'];
-const TOPPING_OPTS = [{name:'不加料', price:0},{name:'粉粿 +$10', price:10},{name:'波霸 +$10', price:10},{name:'椰果 +$10', price:10},{name:'芝芝 +$20', price:20}];
-let selDrink=null, selSize=null, selSugar='正常', selIce='正常冰', selCat='飲中甜品', selTopping=TOPPING_OPTS[0];
-const GAS_URL = 'https://script.google.com/macros/s/AKfycbywspFOQ2yDtADrsLRtZHZso9i1_1AY151kTZvArQuuWRbai9Bn86DjWaBkoEBkPcfE/exec';
-function getOrders(){ try{ return JSON.parse(localStorage.getItem('macuOrders')||'[]'); }catch{ return []; } }
-function saveOrders(a){ localStorage.setItem('macuOrders', JSON.stringify(a)); }
+  // 請填入部署的 Google Apps Script 網路應用程式 URL
+  const GAS_URL = "YOUR_GAS_DEPLOYMENT_URL_HERE";
 
-// ── Timeout wrapper：最多等 8 秒 ──
-async function fetchWithTimeout(url, options={}, ms=8000){
-  const controller = new AbortController();
-  const timer = setTimeout(()=>controller.abort(), ms);
-  try{
-    const res = await fetch(url, {...options, signal:controller.signal});
-    clearTimeout(timer); return res;
-  }catch(err){ clearTimeout(timer); throw err; }
-}
-
-// ── 訂單快取：30 秒內不重打 GAS ──
-let cachedOrders = null, lastFetch = 0;
-const CACHE_TTL = 30000;
-function invalidateCache(){ cachedOrders=null; lastFetch=0; }
-function updateCachedOrder(id, changes){
-  if(!cachedOrders) return;
-  const idx = cachedOrders.findIndex(o=>o.id===id);
-  if(idx!==-1) cachedOrders[idx]={...cachedOrders[idx],...changes};
-}
-async function fetchOrdersFromSheet(){
-  const now = Date.now();
-  if(cachedOrders && now-lastFetch < CACHE_TTL) return [...cachedOrders];
-  const res = await fetchWithTimeout(GAS_URL, {}, 8000);
-  const data = await res.json();
-  cachedOrders = data.orders || []; lastFetch = now;
-  return [...cachedOrders];
-}
-
-// ── 只更新畫面的 checkbox / row，不重刷整頁 ──
-function updatePaidUI(id, paid){
-  document.querySelectorAll(`[data-id="${id}"]`).forEach(chk=>{ chk.checked=paid; });
-  const row = document.querySelector(`.order-row[data-id="${id}"]`);
-  if(row){
-    row.classList.toggle('paid', paid);
-    const payTxt = row.querySelector('.pay-txt');
-    if(payTxt) payTxt.textContent = paid?'✅已付':'未付';
-  }
-}
-
-// ── 樂觀更新：先改畫面，背景傳 GAS，失敗就還原 ──
-async function syncPaidStatus(id, paid){
-  updateCachedOrder(id, {paid});
-  updatePaidUI(id, paid);
-  try{
-    await fetchWithTimeout(GAS_URL,{method:'POST',body:JSON.stringify({action:'setPaid',id,paid})},8000);
-    showToast(paid?'✅ 已標記收款':'⏺ 已取消收款','#27AE60');
-    if(cachedOrders && document.getElementById('page-admin').classList.contains('active')) renderTotals(cachedOrders);
-    if(document.getElementById('page-payment').classList.contains('active')) renderPayment();
-  }catch(err){
-    updateCachedOrder(id, {paid:!paid});
-    updatePaidUI(id, !paid);
-    showToast('⚠️ 同步失敗，已還原','#C0392B');
-  }
-}
-
-async function renderPayment(){
-  const box = document.getElementById('paymentContent');
-  box.innerHTML = '<div style="text-align:center;padding:40px;color:#999">載入訂單...</div>';
-  let orders = [];
-  try {
-    orders = await fetchOrdersFromSheet();
-  } catch(e){ orders = getOrders(); }
-  const classGroups = ['211','212','214','204','205','217','其他'];
-  let html = `<div style="background:#D0232A;border-radius:14px;padding:18px;margin-bottom:20px;color:#fff;display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;text-align:center;">
-        <div><div style="font-size:11px;opacity:.7;">總杯數</div><div style="font-size:22px;font-weight:900;">${orders.length}</div></div>
-        <div><div style="font-size:11px;opacity:.7;">總應收</div><div style="font-size:22px;font-weight:900;">$${orders.reduce((s,o)=>s+(o.price||0),0)}</div></div>
-        <div><div style="font-size:11px;opacity:.7;">已收</div><div style="font-size:22px;font-weight:900;color:#FFD580;">$${orders.filter(o=>o.paid).reduce((s,o)=>s+(o.price||0),0)}</div></div>
-        <div><div style="font-size:11px;opacity:.7;">未收</div><div style="font-size:22px;font-weight:900;color:#FFAA80;">$${orders.filter(o=>!o.paid).reduce((s,o)=>s+(o.price||0),0)}</div></div>
-      </div>`;
-  for(let cls of classGroups){
-    const clsOrders = orders.filter(o=>{
-      const oc = String(o.cls||'').trim();
-      if(cls==='其他') return oc==='' || oc==='其他';
-      return oc===cls;
-    });
-    if(clsOrders.length ===0){
-      html += `<div class="class-header"><div style="background:#fff;border-radius:12px;padding:12px 16px;margin-bottom:12px;"><div style="font-weight:900;font-size:17px;">${cls} 班</div><div style="color:#aaa;font-size:13px;">暫無訂單</div></div></div>`;
-      continue;
+  const menuData = [
+    {
+      category: "飲中甜品",
+      items: [
+        { name: "開心果椰水", prices: { M: 80 }, temp: "冷", fixedSugarIce: true },
+        { name: "開心果可可", prices: { M: 80 }, temp: "冰沙", fixedSugarIce: true },
+        { name: "楊枝甘露2.0", prices: { L: 85 }, temp: "碎冰沙", fixedSugarIce: true },
+        { name: "芝芝芒果果粒", prices: { L: 90 }, temp: "碎冰沙", fixedSugarIce: true },
+        { name: "芒果果粒波波", prices: { L: 85 }, temp: "碎冰沙", fixedSugarIce: true },
+        { name: "酪梨芒果甘露", prices: { L: 85 }, temp: "細冰沙", fixedSugarIce: true },
+        { name: "蕃茄梅蜜", prices: { L: 70, 瓶裝: 100 }, temp: "冰沙", fixedSugarIce: true },
+        { name: "蕃茄梅蜜波波", prices: { L: 80, 瓶裝: 110 }, temp: "冰沙", fixedSugarIce: true },
+        { name: "芝芝葡萄果粒", prices: { L: 85 }, temp: "冰沙", fixedSugarIce: true },
+        { name: "葡萄果粒波波", prices: { L: 85 }, temp: "冰沙", fixedSugarIce: true },
+        { name: "芋泥波波鮮奶2.0", prices: { L: 65 }, temp: "碎冰沙/熱", fixedSugarIce: true },
+        { name: "濃厚芋泥鮮奶", prices: { L: 65 }, temp: "碎冰沙/熱", fixedSugarIce: true },
+        { name: "酪梨草莓甘露", prices: { L: 90 }, temp: "細冰沙", fixedSugarIce: true },
+        { name: "芝芝草莓果粒", prices: { L: 90 }, temp: "冰沙", fixedSugarIce: true },
+        { name: "草莓果粒波波", prices: { L: 90 }, temp: "冰沙", fixedSugarIce: true }
+      ]
+    },
+    {
+      category: "原味茶",
+      items: [
+        { name: "高山金萱茶", prices: { L: 30, 瓶裝: 45 } },
+        { name: "粉粿金萱", prices: { L: 40, 瓶裝: 55 }, temp: "冷" },
+        { name: "金萱雙Q", prices: { L: 40, 瓶裝: 55 } },
+        { name: "紅萱烏龍", prices: { L: 35, 瓶裝: 50 } },
+        { name: "翡翠綠茶", prices: { L: 30, 瓶裝: 45 } },
+        { name: "錫蘭紅茶", prices: { L: 30, 瓶裝: 45 } },
+        { name: "文山青茶", prices: { L: 30, 瓶裝: 45 } },
+        { name: "古早味紅茶", prices: { L: 30, 瓶裝: 45 } }
+      ]
+    },
+    {
+      category: "果粒茶系列",
+      items: [
+        { name: "香橙果粒茶", prices: { L: 75, 瓶裝: 105 }, temp: "冷" },
+        { name: "柳橙果粒茶", prices: { L: 70, 瓶裝: 100 }, temp: "冷" },
+        { name: "葡萄柚果粒茶", prices: { L: 65, 瓶裝: 95 }, temp: "冷" },
+        { name: "葡萄柚果粒蜜茶", prices: { L: 65, 瓶裝: 95 }, temp: "冷" },
+        { name: "柳橙芒果果粒茶", prices: { L: 75 }, temp: "冷" }
+      ]
+    },
+    {
+      category: "芝芝系列",
+      items: [
+        { name: "芝芝金萱", prices: { L: 50 } },
+        { name: "芝芝金萱雙Q", prices: { L: 60 } }
+      ]
+    },
+    {
+      category: "鮮果茶飲",
+      items: [
+        { name: "橙香紅萱", prices: { L: 65, 瓶裝: 95 }, temp: "冷" },
+        { name: "柚香紅萱", prices: { L: 60, 瓶裝: 90 }, temp: "冷" },
+        { name: "百香雙Q果", prices: { L: 60, 瓶裝: 80 }, temp: "冷" },
+        { name: "百香綠茶", prices: { L: 55, 瓶裝: 75 }, temp: "冷" },
+        { name: "翡翠柳橙", prices: { L: 60, 瓶裝: 90 }, temp: "冷" },
+        { name: "蜂蜜檸檬", prices: { L: 60 }, temp: "冷" },
+        { name: "柚香翡翠", prices: { L: 55, 瓶裝: 85 }, temp: "冷" }
+      ]
+    },
+    {
+      category: "濃醇系列",
+      items: [
+        { name: "錫蘭奶茶", prices: { L: 50, 瓶裝: 75 } },
+        { name: "鐵觀音奶茶", prices: { L: 50, 瓶裝: 75 } },
+        { name: "波霸奶茶", prices: { L: 50, 瓶裝: 75 } }
+      ]
+    },
+    {
+      category: "鮮奶系列",
+      items: [
+        { name: "粉粿紅茶拿鐵", prices: { L: 65, 瓶裝: 95 }, temp: "冷" },
+        { name: "紅茶拿鐵", prices: { L: 65, 瓶裝: 95 } },
+        { name: "鐵觀音拿鐵", prices: { L: 65, 瓶裝: 95 } },
+        { name: "波霸紅茶拿鐵", prices: { L: 65, 瓶裝: 95 } }
+      ]
+    },
+    {
+      category: "經典特調",
+      items: [
+        { name: "梅子冰茶", prices: { L: 35, 瓶裝: 50 }, fixedSugarIce: true },
+        { name: "梅子綠茶", prices: { L: 45 } },
+        { name: "多多綠茶", prices: { L: 50, 瓶裝: 80 }, temp: "冷" }
+      ]
+    },
+    {
+      category: "蕎麥系列(無咖啡因)",
+      items: [
+        { name: "蕎麥綠寶石", prices: { L: 40, 瓶裝: 55 } }
+      ]
     }
-    const clsTotal = clsOrders.reduce((s,o)=>s+(o.price||0),0);
-    const clsPaid = clsOrders.filter(o=>o.paid).reduce((s,o)=>s+(o.price||0),0);
-    html += `<div class="class-header">
-      <div style="background:#fff;border-radius:12px;margin-bottom:12px;overflow:hidden;">
-        <div style="padding:14px 16px;background:#FDECEA;border-bottom:2px solid #F0D8D0;display:flex;justify-content:space-between;">
-          <span style="font-weight:900;font-size:18px;">${cls} 班</span>
-          <span style="font-weight:800;color:#D0232A;">已收 $${clsPaid} / 總 $${clsTotal}</span>
-        </div>
-        <div class="payment-order-list">`;
-    clsOrders.forEach(order => {
-      const specs = `${order.sugar||'正常糖'} · ${order.ice||'正常冰'}${order.topping&&order.topping!=='不加料'?` · ${order.topping}`:''}`;
-      html += `<div class="payment-order-item" data-order-id="${order.id}">
-        <div class="porder-left">
-          <div class="porder-name">🧑 ${order.name} ${order.cls?`(${order.cls})`:''}</div>
-          <div class="porder-detail">${order.drinkName} · ${order.size} · ${specs}${order.note?` ｜📝 ${order.note}`:''}</div>
-        </div>
-        <div class="porder-price">$${order.price}</div>
-        <input type="checkbox" class="porder-chk" ${order.paid ? 'checked' : ''} data-id="${order.id}" data-paid="${order.paid}">
-      </div>`;
-    });
-    html += `</div></div></div>`;
-  }
-  box.innerHTML = html;
-  document.querySelectorAll('#paymentContent .porder-chk').forEach(chk => {
-    chk.addEventListener('change', (e) => {
-      e.stopPropagation();
-      const orderId = parseInt(chk.getAttribute('data-id'));
-      const newPaid = chk.checked;
-      if(!adminUnlocked) chk.checked = !newPaid; // 先還原，等驗證完再樂觀更新
-      requireAuth('請輸入密碼以更新收款狀態', () => { syncPaidStatus(orderId, newPaid); });
-    });
+  ];
+
+  const toppings = [
+    { name: "波霸", price: 10 },
+    { name: "椰果", price: 10 },
+    { name: "雙Q果", price: 10 },
+    { name: "波波", price: 10 },
+    { name: "紅萱粉粿", price: 10 },
+    { name: "綠茶凍", price: 10 },
+    { name: "芝芝", price: 20 },
+    { name: "開心果芝芝", price: 35 },
+    { name: "開心果脆脆", price: 10 }
+  ];
+
+  const sugarList = ["無糖 0%", "一分 10%", "三分 30%", "半糖 50%", "八分 80%", "正常 100%"];
+  const iceList = ["去冰 0%", "微冰 30%", "少冰 50%", "正常冰 100%", "常溫", "溫熱"];
+
+  // 初始化選單元件
+  const catEl = document.getElementById("categorySelect");
+  const itemEl = document.getElementById("itemSelect");
+  const sizeEl = document.getElementById("sizeSelect");
+  const sugarEl = document.getElementById("sugarSelect");
+  const iceEl = document.getElementById("iceSelect");
+  const toppingsEl = document.getElementById("toppingsContainer");
+
+  menuData.forEach((c, idx) => {
+    catEl.innerHTML += `<option value="${idx}">${c.category}</option>`;
   });
-}
 
-let adminUnlocked = false;
-let pendingAction = null;
-const ADMIN_PW = '214';
-function requireAuth(desc, action){
-  if(adminUnlocked){ action(); return; }
-  pendingAction = action;
-  document.getElementById('pwDesc').textContent = desc;
-  document.getElementById('pwInput').value = '';
-  document.getElementById('pwError').textContent = '';
-  document.getElementById('adminLock').style.display = 'flex';
-  setTimeout(()=>document.getElementById('pwInput').focus(), 100);
-}
-function checkPw(){
-  if(document.getElementById('pwInput').value === ADMIN_PW){
-    adminUnlocked = true;
-    document.getElementById('adminLock').style.display = 'none';
-    if(pendingAction){ pendingAction(); pendingAction=null; }
-  } else {
-    document.getElementById('pwError').textContent = '❌ 密碼錯誤';
-    document.getElementById('pwInput').value='';
+  toppings.forEach(t => {
+    toppingsEl.innerHTML += `
+      <label class="topping-item">
+        <input type="checkbox" value="${t.name}" data-price="${t.price}" class="topping-chk">
+        ${t.name} (+$${t.price})
+      </label>
+    `;
+  });
+
+  function renderItems() {
+    const cat = menuData[catEl.value];
+    itemEl.innerHTML = cat.items.map((it, idx) => `<option value="${idx}">${it.name}</option>`).join("");
+    renderSizes();
   }
-}
-function closeLock(){ document.getElementById('adminLock').style.display='none'; pendingAction=null; }
-function toggleOrdering(open){ requireAuth(open?'輸入密碼開啟點餐':'輸入密碼關閉點餐',()=>{
-  applyOrderingState(open);
-  showToast(open?'✅已開啟點餐':'🔒已關閉點餐');
-  fetch(GAS_URL,{method:'POST',body:JSON.stringify({action:'setStatus',open})}).catch(()=>{});
-}); if(!adminUnlocked) document.getElementById('orderToggle').checked = !open; }
-function applyOrderingState(open){ document.getElementById('toggleLabel').textContent=open?'接單中':'已截止'; document.getElementById('orderToggle').checked=open; document.getElementById('orderClosed').style.display=open?'none':'block'; document.getElementById('submitBtn').style.display=open?'block':'none'; }
-function loadOrderingState(){ fetch(GAS_URL+'?action=getStatus').then(r=>r.json()).then(d=>{ applyOrderingState(d.open!==false); }).catch(()=>{}); }
-setInterval(loadOrderingState, 10000);
 
-function buildOrder(){
-  renderQuickOrders();
-  const savedName=localStorage.getItem('savedName'); if(savedName){ const el=document.getElementById('orderName'); if(el&&!el.value) el.value=savedName; }
-  const savedClass=localStorage.getItem('savedClass'); if(savedClass){ const el=document.getElementById('orderClass'); if(el&&!el.value) el.value=savedClass; }
-  const cats=[...new Set(MENU.map(d=>d.cat))]; const catRow=document.getElementById('catRow'); catRow.innerHTML='';
-  cats.forEach(c=>{ const b=document.createElement('button'); b.className='cat-btn'+(c===selCat?' active':''); b.textContent=c; b.onclick=()=>{ selCat=c; buildOrder(); }; catRow.appendChild(b); });
-  renderDrinks(); refreshChips();
-}
-function renderDrinks(){ const grid=document.getElementById('drinkGrid'); grid.innerHTML=''; MENU.filter(d=>d.cat===selCat).forEach(d=>{ const el=document.createElement('div'); el.className='drink-card'+(selDrink?.id===d.id?' selected':''); el.onclick=()=>pickDrink(d); let px=''; if(d.M!=null) px+=`<span class="price-tag">中 $${d.M}</span>`; if(d.L!=null) px+=`<span class="price-tag">大 $${d.L}</span>`; if(d.B!=null) px+=`<span class="price-tag">瓶 $${d.B}</span>`; el.innerHTML=`${d.tag?`<div class="drink-tag">${d.tag}</div>`:''}<div class="drink-name">${d.name}</div><div class="drink-prices">${px}</div>`; grid.appendChild(el); }); }
-function pickDrink(d){ selDrink=d; selSize=null; renderDrinks(); document.getElementById('optCard').style.display='block'; document.getElementById('optTitle').textContent=`規格選擇 — ${d.name}`; renderSizes(d); refreshChips(); }
-function renderSizes(d){ const row=document.getElementById('sizeRow'); row.innerHTML=''; [{k:'M',l:'中杯',i:'🥤',p:d.M},{k:'L',l:'大杯',i:'🧋',p:d.L},{k:'B',l:'瓶裝',i:'🍶',p:d.B}].forEach(s=>{ const el=document.createElement('div'); const ok=s.p!=null; el.className='size-card'+(selSize===s.k?' selected':'')+(ok?'':' disabled'); if(ok) el.onclick=()=>{ selSize=s.k; renderSizes(d); }; el.innerHTML=`<div class="size-icon">${s.i}</div><div class="size-label">${s.l}</div><div class="size-price">${ok?'$'+s.p:'—'}</div>`; row.appendChild(el); }); }
-function refreshChips(){ buildChips('sugarChips', SUGAR_OPTS, selSugar, v=>{ selSugar=v; refreshChips(); }); buildChips('iceChips', ICE_OPTS, selIce, v=>{ selIce=v; refreshChips(); }); buildToppingChips(); }
-function buildToppingChips(){ const div=document.getElementById('toppingChips'); div.innerHTML=''; TOPPING_OPTS.forEach(t=>{ const b=document.createElement('button'); b.className='chip'+(selTopping.name===t.name?' selected':''); b.textContent=t.name; b.onclick=()=>{ selTopping=t; buildToppingChips(); }; div.appendChild(b); }); }
-function buildChips(id, opts, cur, fn){ const div=document.getElementById(id); div.innerHTML=''; opts.forEach(o=>{ const b=document.createElement('button'); b.className='chip'+(o===cur?' selected':''); b.textContent=o; b.onclick=()=>fn(o); div.appendChild(b); }); }
-function showToast(msg,bg){ const t=document.getElementById('toast'); t.textContent=msg; t.style.background=bg||'#27AE60'; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2400); }
-function submitOrder(){ const cls=document.getElementById('orderClass').value; const name=document.getElementById('orderName').value.trim(); if(!cls||!name||!selDrink||!selSize){ showToast('請填完整資訊','#C0392B'); return; } const basePrice = selSize==='M'?selDrink.M : selSize==='L'?selDrink.L : selDrink.B; if(!basePrice){ showToast('請重新選擇杯型','#C0392B'); return; } const price = basePrice + selTopping.price; const sizeLabel = selSize==='M'?'中杯': selSize==='L'?'大杯':'瓶裝'; const order={ id:Date.now(), name, cls, drinkId:selDrink.id, drinkName:selDrink.name, drinkCat:selDrink.cat, size:sizeLabel, price, sugar:selSugar, ice:selIce, topping:selTopping.name, note:document.getElementById('orderNote').value.trim(), paid:false, time:new Date().toLocaleString('zh-TW',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hour12:false}) }; const arr=getOrders(); arr.push(order); saveOrders(arr); fetchWithTimeout(GAS_URL,{method:'POST',body:JSON.stringify({...order,action:'add'})},8000).then(()=>invalidateCache()).catch(()=>showToast('離線儲存','#E8A020')); saveQuickOrder(order); selDrink=null; selSize=null; selTopping=TOPPING_OPTS[0]; document.getElementById('orderName').value=''; document.getElementById('orderNote').value=''; document.getElementById('orderClass').value=''; document.getElementById('optCard').style.display='none'; renderDrinks(); renderQuickOrders(); showToast('✅訂單送出'); }
-function getQuickOrders(){ try{ return JSON.parse(localStorage.getItem('quickOrders')||'[]'); }catch{ return []; } }
-function saveQuickOrder(o){ let list=getQuickOrders(); const key=o.drinkId+'|'+o.size+'|'+o.sugar+'|'+o.ice+'|'+o.topping; list=list.filter(x=> (x.drinkId+'|'+x.size+'|'+x.sugar+'|'+x.ice+'|'+x.topping)!==key); list.unshift(o); if(list.length>5) list=list.slice(0,5); localStorage.setItem('quickOrders',JSON.stringify(list)); }
-function renderQuickOrders(){ const list=getQuickOrders(); const wrap=document.getElementById('quickOrderWrap'); const box=document.getElementById('quickOrderList'); if(!list.length){ wrap.style.display='none'; return; } wrap.style.display='block'; box.innerHTML=''; list.forEach(o=>{ const btn=document.createElement('button'); btn.style.cssText='width:100%;padding:10px 14px;background:#fff;border:1.5px solid #F0D8D0;border-radius:10px;text-align:left;cursor:pointer;display:flex;justify-content:space-between;'; btn.innerHTML=`<div><div style="font-weight:700;">🧋 ${o.drinkName}</div><div style="font-size:12px;color:#777;">${o.sizeLabel} · ${o.sugar} · ${o.ice}</div></div><div style="color:#D0232A;font-weight:900;">$${o.price}</div>`; btn.onclick=()=>applyQuickOrder(o); box.appendChild(btn); }); }
-function applyQuickOrder(o){ const drink=MENU.find(d=>d.id===o.drinkId); if(!drink) return; selCat=drink.cat; buildOrder(); pickDrink(drink);
-  // 把中文標籤轉回 key，再確認該杯型真的有價格
-  const sizeKey = o.size==='中杯'?'M': o.size==='大杯'?'L':'B';
-  const sizePrice = sizeKey==='M'?drink.M: sizeKey==='L'?drink.L:drink.B;
-  selSize = (sizePrice != null) ? sizeKey : null; // 無效就清空，讓使用者重選
-  renderSizes(drink); selSugar=o.sugar; selIce=o.ice; const topping=TOPPING_OPTS.find(t=>t.name===o.topping)||TOPPING_OPTS[0]; selTopping=topping; refreshChips(); document.getElementById('optCard').style.display='block'; document.getElementById('optCard').scrollIntoView({behavior:'smooth'}); }
-async function renderAdmin(){ const orders = await fetchOrdersFromSheet().catch(()=>getOrders()); renderTotals(orders); renderSum(orders); renderList(orders); document.getElementById('orderCount').textContent=orders.length?`（共 ${orders.length} 筆）`:''; }
-function renderTotals(arr){ const total=arr.reduce((s,o)=>s+(o.price||0),0); const paidAmt=arr.filter(o=>o.paid).reduce((s,o)=>s+(o.price||0),0); const unpaid=arr.filter(o=>!o.paid); document.getElementById('tc-cups').textContent=arr.length; document.getElementById('tc-total').textContent=`$${total}`; document.getElementById('tc-paid').textContent=`$${paidAmt}`; document.getElementById('tc-unpaid').textContent=`$${total-paidAmt}`; document.getElementById('tc-paid-n').textContent=arr.filter(o=>o.paid).length?`${arr.filter(o=>o.paid).length} 人已付`:''; document.getElementById('tc-unpaid-n').textContent=unpaid.length?`${unpaid.length} 人未付`:''; }
-function renderSum(arr){ const box=document.getElementById('sumGrid'); if(!arr.length){ box.innerHTML='<div style="font-size:13px;opacity:.6">尚無訂單</div>'; return; } const drinkMap={}; arr.forEach(o=>{ const dk=`${o.drinkName}|${o.size}`; if(!drinkMap[dk]) drinkMap[dk]={ name:o.drinkName, size:o.size, total:0, variants:{}, noted:[] }; drinkMap[dk].total++; if(o.note){ drinkMap[dk].noted.push({vk:`${o.sugar}・${o.ice}`, note:o.note}); } else { const vk=`${o.sugar}・${o.ice}`; drinkMap[dk].variants[vk]=(drinkMap[dk].variants[vk]||0)+1; } }); box.innerHTML=''; Object.values(drinkMap).sort((a,b)=>b.total-a.total).forEach(drink=>{ const el=document.createElement('div'); el.className='sum-item'; const varRows=Object.entries(drink.variants).map(([vk,cnt])=>`<div class="sum-var"><span>${vk}</span><span class="sum-var-cnt">×${cnt}</span></div>`).join(''); const noteRows=drink.noted.map(({vk,note})=>`<div class="sum-var" style="border-left:2px solid #E8A020;"><span>${vk}（${note}）</span><span class="sum-var-cnt">×1</span></div>`).join(''); el.innerHTML=`<div class="sum-top"><div><div class="sum-name">${drink.name}</div><div style="font-size:11px;color:rgba(255,255,255,.6);">${drink.size}</div></div><div class="sum-count">${drink.total}</div></div><div class="sum-vars">${varRows}${noteRows}</div>`; box.appendChild(el); }); }
-function renderList(arr){ const list=document.getElementById('ordersList'); if(!arr.length){ list.innerHTML='<div class="empty-state"><div class="ei">🧋</div><p>還沒有訂單</p></div>'; return; } list.innerHTML=''; [...arr].sort((a,b)=>b.id-a.id).forEach(o=>list.appendChild(makeOrderRow(o))); }
-function makeOrderRow(o){ const row=document.createElement('div'); row.className='order-row'+(o.paid?' paid':'')+(o.note?' has-note':''); row.dataset.id=o.id; row.innerHTML=`<div class="or-info"><div><span class="or-name">👤 ${o.name}</span>${o.cls?`<span style="font-size:11px;background:#FDECEA;color:#D0232A;border-radius:6px;padding:1px 7px;margin-left:5px;font-weight:700;">${o.cls}班</span>`:''}<span class="or-time">${o.time}</span></div><div class="or-drink">🧋 ${o.drinkName}</div><div class="or-opts"><span class="or-size">${o.size} $${o.price}</span>${o.sugar} · ${o.ice}${o.topping&&o.topping!=='不加料'?` · <span style="color:#E8A020;font-weight:700;">${o.topping}</span>`:''}</div>${o.note?`<div class="or-note">📝 ${o.note}</div>`:''}</div><div class="pay-col"><input type="checkbox" class="pay-chk" ${o.paid?'checked':''} onchange="togglePaid(${o.id},this.checked)"><div class="pay-txt">${o.paid?'✅已付':'未付'}</div><button class="del-btn" onclick="deleteOrder(${o.id})">🗑️</button></div>`; return row; }
-window.togglePaid = (id, paid) => { requireAuth('請輸入密碼更改付款狀態',()=>{ syncPaidStatus(id, paid); }); };
-window.deleteOrder = (id) => { requireAuth('請輸入密碼刪除訂單',()=>{ fetchWithTimeout(GAS_URL,{method:'POST',body:JSON.stringify({action:'delete',id})},8000).then(()=>{ invalidateCache(); if(document.getElementById('page-admin').classList.contains('active')) renderAdmin(); if(document.getElementById('page-payment').classList.contains('active')) renderPayment(); showToast('已刪除'); }).catch(()=>showToast('刪除失敗','#C0392B')); }); };
-function clearOrders(){ requireAuth('請輸入密碼清除所有訂單',()=>{ const btn=document.getElementById('clearBtn'); if(btn.dataset.confirm!=='1'){ btn.textContent='⚠️ 再按一次確認'; btn.classList.add('confirm-state'); btn.dataset.confirm='1'; setTimeout(()=>{ btn.textContent='🗑️ 清除所有訂單'; btn.classList.remove('confirm-state'); btn.dataset.confirm='0'; },3000); return; } fetchWithTimeout(GAS_URL,{method:'POST',body:JSON.stringify({action:'clearAll'})},8000).then(()=>{ invalidateCache(); renderAdmin(); renderPayment(); showToast('已清除'); }).catch(()=>showToast('清除失敗','#C0392B')); btn.dataset.confirm='0'; }); }
-function switchPage(p,btn){ document.querySelectorAll('.page').forEach(el=>el.classList.remove('active')); document.querySelectorAll('.nav-tab').forEach(el=>el.classList.remove('active')); document.getElementById('page-'+p).classList.add('active'); btn.classList.add('active'); if(p==='admin'){ renderAdmin(); } else if(p==='payment'){ renderPayment(); } }
-function loadOrderingState(){ fetchWithTimeout(GAS_URL+'?action=getStatus',{},8000).then(r=>r.json()).then(d=>{ applyOrderingState(d.open!==false); }).catch(()=>{}); }
-loadOrderingState(); buildOrder();
+  function renderSizes() {
+    const it = menuData[catEl.value].items[itemEl.value];
+    sizeEl.innerHTML = Object.entries(it.prices).map(([sz, p]) => `<option value="${sz}" data-price="${p}">${sz} ($${p})</option>`).join("");
+
+    if (it.fixedSugarIce) {
+      sugarEl.innerHTML = `<option value="甜度固定">甜度固定</option>`;
+      iceEl.innerHTML = `<option value="${it.temp || '冰量固定'}">${it.temp || '冰量固定'}</option>`;
+    } else {
+      sugarEl.innerHTML = sugarList.map(s => `<option value="${s}">${s}</option>`).join("");
+      const availableIces = it.temp === "冷" ? iceList.filter(i => !i.includes("溫") && !i.includes("熱")) : iceList;
+      iceEl.innerHTML = availableIces.map(i => `<option value="${i}">${i}</option>`).join("");
+    }
+    calcPrice();
+  }
+
+  function calcPrice() {
+    const basePrice = Number(sizeEl.selectedOptions[0]?.dataset?.price || 0);
+    let extra = 0;
+    document.querySelectorAll(".topping-chk:checked").forEach(chk => {
+      extra += Number(chk.dataset.price);
+    });
+    document.getElementById("displayPrice").innerText = basePrice + extra;
+  }
+
+  catEl.addEventListener("change", renderItems);
+  itemEl.addEventListener("change", renderSizes);
+  sizeEl.addEventListener("change", calcPrice);
+  document.querySelectorAll(".topping-chk").forEach(chk => chk.addEventListener("change", calcPrice));
+
+  renderItems();
+
+  // 串接 GAS：取得系統狀態與既有訂單
+  async function loadData() {
+    if (GAS_URL === "YOUR_GAS_DEPLOYMENT_URL_HERE") {
+      document.getElementById("statusText").innerText = "⚠️ 請先設定 GAS_URL";
+      document.getElementById("orderList").innerText = "尚未串接後端網址";
+      return;
+    }
+    try {
+      const [resStatus, resOrders] = await Promise.all([
+        fetch(`${GAS_URL}?action=getStatus`).then(r => r.json()),
+        fetch(GAS_URL).then(r => r.json())
+      ]);
+
+      const statusEl = document.getElementById("statusText");
+      if (resStatus.open) {
+        statusEl.innerHTML = "🟢 目前開放點餐中";
+        statusEl.classList.remove("status-closed");
+      } else {
+        statusEl.innerHTML = "🔴 目前已截止收單";
+        statusEl.classList.add("status-closed");
+        document.getElementById("submitBtn").disabled = true;
+      }
+
+      const listEl = document.getElementById("orderList");
+      if (!resOrders.orders || resOrders.orders.length === 0) {
+        listEl.innerHTML = "尚無任何點單記錄";
+        return;
+      }
+      listEl.innerHTML = resOrders.orders.map(o => `
+        <div class="order-item">
+          <div>
+            <strong>${o.cls ? `[${o.cls}] ` : ""}${o.name}</strong> - ${o.drinkName} (${o.size})<br>
+            <small style="color: #666;">${o.sugar} / ${o.ice} / ${o.topping} ${o.note ? `| 備註: ${o.note}` : ""}</small>
+          </div>
+          <div>
+            <span class="tag ${o.paid ? 'tag-paid' : 'tag-unpaid'}">${o.paid ? '已付' : '未付'}</span>
+            <strong>$${o.price}</strong>
+          </div>
+        </div>
+      `).join("");
+    } catch (e) {
+      document.getElementById("statusText").innerText = "無法載入系統狀態";
+    }
+  }
+
+  // 送出訂單
+  document.getElementById("orderForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const btn = document.getElementById("submitBtn");
+    btn.disabled = true;
+    btn.innerText = "送出中...";
+
+    const checkedToppings = Array.from(document.querySelectorAll(".topping-chk:checked")).map(c => c.value);
+    const selectedItem = menuData[catEl.value].items[itemEl.value];
+
+    const payload = {
+      action: "add",
+      id: Date.now(),
+      time: new Date().toLocaleTimeString("zh-TW", { hour12: false, hour: '2-digit', minute: '2-digit' }),
+      name: document.getElementById("name").value.trim(),
+      cls: document.getElementById("cls").value.trim(),
+      drinkName: selectedItem.name,
+      size: sizeEl.value,
+      price: Number(document.getElementById("displayPrice").innerText),
+      sugar: sugarEl.value,
+      ice: iceEl.value,
+      topping: checkedToppings.length > 0 ? checkedToppings.join(",") : "不加料",
+      note: document.getElementById("note").value.trim(),
+      paid: false
+    };
+
+    try {
+      await fetch(GAS_URL, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+      alert("訂單已送出！");
+      document.getElementById("orderForm").reset();
+      renderItems();
+      setTimeout(loadData, 1000);
+    } catch (err) {
+      alert("訂單送出失敗：" + err.message);
+    } finally {
+      btn.disabled = false;
+      btn.innerText = "送出訂單";
+    }
+  });
+
+  loadData();
 </script>
 </body>
 </html>
