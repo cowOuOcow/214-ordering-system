@@ -467,7 +467,7 @@ async function renderPayment(){
   try {
     orders = await fetchOrdersFromSheet();
   } catch(e){ orders = getOrders(); }
-  const classGroups = ['211','212','214','204','205','217','其他'];
+  const classGroups = ['311','312','314','304','305','317','其他'];
   let html = `<div style="background:#D0232A;border-radius:14px;padding:18px;margin-bottom:20px;color:#fff;display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;text-align:center;">
         <div><div style="font-size:11px;opacity:.7;">總杯數</div><div style="font-size:22px;font-weight:900;">${orders.length}</div></div>
         <div><div style="font-size:11px;opacity:.7;">總應收</div><div style="font-size:22px;font-weight:900;">$${orders.reduce((s,o)=>s+(o.price||0),0)}</div></div>
@@ -520,7 +520,7 @@ async function renderPayment(){
 
 let adminUnlocked = false;
 let pendingAction = null;
-const ADMIN_PW = '214';
+const ADMIN_PW = '314';
 function requireAuth(desc, action){
   if(adminUnlocked){ action(); return; }
   pendingAction = action;
