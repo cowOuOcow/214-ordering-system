@@ -383,7 +383,7 @@ function checkSeasonTag(tag){
 let selDrink=null, selSize=null, selSugar='正常', selIce='正常冰', selCat='飲中甜品', selTopping=TOPPING_OPTS[0];
 const GAS_URL = 'https://script.google.com/macros/s/AKfycbywspFOQ2yDtADrsLRtZHZso9i1_1AY151kTZvArQuuWRbai9Bn86DjWaBkoEBkPcfE/exec';
 
-async function fetchWithTimeout(url, options={}, ms=12000){
+async function fetchWithTimeout(url, options={}, ms=15000){
   const controller = new AbortController();
   const timer = setTimeout(()=>controller.abort(), ms);
   try{
@@ -393,11 +393,10 @@ async function fetchWithTimeout(url, options={}, ms=12000){
 }
 
 let cachedOrders = null, lastFetch = 0;
-const CACHE_TTL = 20000;
+const CACHE_TTL = 15000;
 function invalidateCache(){ cachedOrders=null; lastFetch=0; }
 function updateCachedOrder(id, changes){
   if(!cachedOrders) return;
-  // 修正：轉成字串比對，避免數字與字串型別不同造成比對失敗
   const idx = cachedOrders.findIndex(o=>String(o.id)===String(id));
   if(idx!==-1) cachedOrders[idx]={...cachedOrders[idx],...changes};
 }
@@ -405,14 +404,13 @@ function updateCachedOrder(id, changes){
 async function fetchOrdersFromSheet(force=false){
   const now = Date.now();
   if(!force && cachedOrders && (now - lastFetch < CACHE_TTL)) return [...cachedOrders];
-  const res = await fetchWithTimeout(GAS_URL, {}, 12000);
+  const res = await fetchWithTimeout(GAS_URL, {}, 15000);
   const data = await res.json();
   cachedOrders = data.orders || [];
   lastFetch = now;
   return [...cachedOrders];
 }
 
-// 修正：明確選取所有屬於該訂單的 checkbox，並同時切換 row 樣式
 function updatePaidUI(id, paid){
   const strId = String(id);
   document.querySelectorAll(`input[type="checkbox"][data-id="${strId}"]`).forEach(chk=>{ chk.checked = paid; });
@@ -428,7 +426,7 @@ async function syncPaidStatus(id, paid){
   updateCachedOrder(id, {paid});
   updatePaidUI(id, paid);
   try{
-    await fetchWithTimeout(GAS_URL,{method:'POST',body:JSON.stringify({action:'setPaid',id,paid})},12000);
+    await fetchWithTimeout(GAS_URL,{method:'POST',body:JSON.stringify({action:'setPaid',id,paid})},15000);
     showToast(paid?'✅ 已標記收款':'⏺ 已取消收款','#27AE60');
     if(cachedOrders && document.getElementById('page-admin').classList.contains('active')) renderTotals(cachedOrders);
     if(document.getElementById('page-payment').classList.contains('active')) renderPayment();
@@ -534,7 +532,7 @@ function toggleOrdering(open){ requireAuth(open?'輸入密碼開啟點餐':'輸�
   fetch(GAS_URL,{method:'POST',body:JSON.stringify({action:'setStatus',open})}).catch(()=>{});
 }); if(!adminUnlocked) document.getElementById('orderToggle').checked = !open; }
 function applyOrderingState(open){ document.getElementById('toggleLabel').textContent=open?'接單中':'已截止'; document.getElementById('orderToggle').checked=open; document.getElementById('orderClosed').style.display=open?'none':'block'; document.getElementById('submitBtn').style.display=open?'block':'none'; }
-function loadOrderingState(){ fetchWithTimeout(GAS_URL+'?action=getStatus',{},12000).then(r=>r.json()).then(d=>{ applyOrderingState(d.open!==false); }).catch(()=>{}); }
+function loadOrderingState(){ fetchWithTimeout(GAS_URL+'?action=getStatus',{},15000).then(r=>r.json()).then(d=>{ applyOrderingState(d.open!==false); }).catch(()=>{}); }
 
 setInterval(loadOrderingState, 45000);
 
@@ -670,7 +668,7 @@ function submitOrder(){
   };
   
   showToast('⏳ 訂單傳送中...','#333');
-  fetchWithTimeout(GAS_URL,{method:'POST',body:JSON.stringify({...order,action:'add'})},12000)
+  fetchWithTimeout(GAS_URL,{method:'POST',body:JSON.stringify({...order,action:'add'})},15000)
     .then(()=>{ invalidateCache(); showToast('✅ 訂單送出成功'); })
     .catch(()=>{ showToast('⚠️ 伺服器忙碌，請告知股長確認','#E8A020'); });
 
@@ -693,7 +691,6 @@ function saveQuickOrder(o){
   localStorage.setItem('quickOrders',JSON.stringify(list));
 }
 
-// 修正：修正 o.sizeLabel 為 o.size，避免顯示 undefined
 function renderQuickOrders(){
   const list=getQuickOrders();
   const wrap=document.getElementById('quickOrderWrap');
@@ -779,7 +776,6 @@ function renderSum(arr){
   });
 }
 
-// 修正：為管理頁面的 pay-chk 加上 data-id，並處理密碼未驗證時先還原勾選狀態
 function makeOrderRow(o){
   const row=document.createElement('div');
   row.className='order-row'+(o.paid?' paid':'')+(o.note?' has-note':'');
@@ -796,7 +792,7 @@ window.togglePaid = (id, chkEl) => {
 
 window.deleteOrder = (id) => {
   requireAuth('請輸入密碼刪除訂單',()=>{
-    fetchWithTimeout(GAS_URL,{method:'POST',body:JSON.stringify({action:'delete',id})},12000).then(()=>{
+    fetchWithTimeout(GAS_URL,{method:'POST',body:JSON.stringify({action:'delete',id})},15000).then(()=>{
       invalidateCache();
       if(document.getElementById('page-admin').classList.contains('active')) renderAdmin();
       if(document.getElementById('page-payment').classList.contains('active')) renderPayment();
@@ -819,7 +815,7 @@ function clearOrders(){
       },3000);
       return;
     }
-    fetchWithTimeout(GAS_URL,{method:'POST',body:JSON.stringify({action:'clearAll'})},12000).then(()=>{
+    fetchWithTimeout(GAS_URL,{method:'POST',body:JSON.stringify({action:'clearAll'})},15000).then(()=>{
       invalidateCache();
       renderAdmin();
       renderPayment();
