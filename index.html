@@ -382,11 +382,11 @@ function checkSeasonTag(tag){
 
 let selDrink=null, selSize=null, selSugar='正常', selIce='正常冰', selCat='飲中甜品', selTopping=TOPPING_OPTS[0];
 
-// 已更換為目前試算表部署的正確網址
-const GAS_URL = 'https://script.google.com/macros/s/AKfycbzuaOT8b-HMWPbjkqJ2Oh-uDtH4OXBvE9ikHH1je4uxGSzjYK15LdCxfHzlYhk29ci/exec';
+// 正確完整網址（含結尾橫線）
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbzuaOT8b-HMWPbjkqJ2Oh-uDtH4OXBvE9ikHH1je4uxGSzjYK15LdCxfHzlYhk29ci-/exec';
 
-// 改為 28 秒寬容逾時 + 自動背景重試機制，徹底避免冷啟動中斷
-async function fetchWithTimeout(url, options={}, ms=28000, retries=1){
+// 設置 25 秒超時 + 自動靜默重試
+async function fetchWithTimeout(url, options={}, ms=25000, retries=1){
   for(let i = 0; i <= retries; i++){
     const controller = new AbortController();
     const timer = setTimeout(()=>controller.abort(), ms);
@@ -415,13 +415,13 @@ function updateCachedOrder(id, changes){
 async function fetchOrdersFromSheet(force=false){
   const now = Date.now();
   if(!force && cachedOrders && (now - lastFetch < CACHE_TTL)) return [...cachedOrders];
-  const res = await fetchWithTimeout(GAS_URL + (GAS_URL.includes('?') ? '&' : '?') + 't=' + now, {}, 28000);
+  const res = await fetchWithTimeout(GAS_URL + (GAS_URL.includes('?') ? '&' : '?') + 't=' + now, {}, 25000);
   const data = await res.json();
   
-  // 雙向相容：不管是回傳 {orders: [...]} 還是直接回傳陣列 [...]
+  // 雙向相容：陣列直接讀，物件讀 orders
   const rawList = Array.isArray(data) ? data : (data.orders || []);
   
-  // 欄位標準化 mapping，確保後端各種 key 都能正確接到前端欄位
+  // 欄位標準化映射，相容各種中文與英文 key
   cachedOrders = rawList.map(item => ({
     id: item.id || item.ID || Date.now(),
     name: item.name || item['姓名'] || '',
@@ -456,7 +456,7 @@ async function syncPaidStatus(id, paid){
   updateCachedOrder(id, {paid});
   updatePaidUI(id, paid);
   try{
-    await fetchWithTimeout(GAS_URL,{method:'POST',body:JSON.stringify({action:'setPaid',id,paid})},28000);
+    await fetchWithTimeout(GAS_URL,{method:'POST',body:JSON.stringify({action:'setPaid',id,paid})},25000);
     showToast(paid?'✅ 已標記收款':'⏺ 已取消收款','#27AE60');
     if(cachedOrders && document.getElementById('page-admin').classList.contains('active')) renderTotals(cachedOrders);
     if(document.getElementById('page-payment').classList.contains('active')) renderPayment();
@@ -562,7 +562,7 @@ function toggleOrdering(open){ requireAuth(open?'輸入密碼開啟點餐':'輸�
   fetch(GAS_URL,{method:'POST',body:JSON.stringify({action:'setStatus',open})}).catch(()=>{});
 }); if(!adminUnlocked) document.getElementById('orderToggle').checked = !open; }
 function applyOrderingState(open){ document.getElementById('toggleLabel').textContent=open?'接單中':'已截止'; document.getElementById('orderToggle').checked=open; document.getElementById('orderClosed').style.display=open?'none':'block'; document.getElementById('submitBtn').style.display=open?'block':'none'; }
-function loadOrderingState(){ fetchWithTimeout(GAS_URL+'?action=getStatus',{},28000).then(r=>r.json()).then(d=>{ applyOrderingState(d.open!==false); }).catch(()=>{}); }
+function loadOrderingState(){ fetchWithTimeout(GAS_URL+'?action=getStatus',{},25000).then(r=>r.json()).then(d=>{ applyOrderingState(d.open!==false); }).catch(()=>{}); }
 
 setInterval(loadOrderingState, 45000);
 
@@ -698,7 +698,7 @@ function submitOrder(){
   };
   
   showToast('⏳ 訂單傳送中...','#333');
-  fetchWithTimeout(GAS_URL,{method:'POST',body:JSON.stringify({...order,action:'add'})},28000)
+  fetchWithTimeout(GAS_URL,{method:'POST',body:JSON.stringify({...order,action:'add'})},25000)
     .then(()=>{ invalidateCache(); showToast('✅ 訂單送出成功'); })
     .catch(()=>{ showToast('⚠️ 伺服器忙碌，請告知股長確認','#E8A020'); });
 
@@ -840,7 +840,7 @@ window.togglePaid = (id, isChecked) => {
 
 window.deleteOrder = (id) => {
   requireAuth('請輸入密碼刪除訂單',()=>{
-    fetchWithTimeout(GAS_URL,{method:'POST',body:JSON.stringify({action:'delete',id})},28000).then(()=>{
+    fetchWithTimeout(GAS_URL,{method:'POST',body:JSON.stringify({action:'delete',id})},25000).then(()=>{
       invalidateCache();
       if(document.getElementById('page-admin').classList.contains('active')) renderAdmin();
       if(document.getElementById('page-payment').classList.contains('active')) renderPayment();
@@ -863,7 +863,7 @@ function clearOrders(){
       },3000);
       return;
     }
-    fetchWithTimeout(GAS_URL,{method:'POST',body:JSON.stringify({action:'clearAll'})},28000).then(()=>{
+    fetchWithTimeout(GAS_URL,{method:'POST',body:JSON.stringify({action:'clearAll'})},25000).then(()=>{
       invalidateCache();
       renderAdmin();
       renderPayment();
