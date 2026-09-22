@@ -381,15 +381,26 @@ function checkSeasonTag(tag){
 }
 
 let selDrink=null, selSize=null, selSugar='正常', selIce='正常冰', selCat='飲中甜品', selTopping=TOPPING_OPTS[0];
-const GAS_URL = 'https://script.google.com/macros/s/AKfycbywspFOQ2yDtADrsLRtZHZso9i1_1AY151kTZvArQuuWRbai9Bn86DjWaBkoEBkPcfE/exec';
 
-async function fetchWithTimeout(url, options={}, ms=12000){
-  const controller = new AbortController();
-  const timer = setTimeout(()=>controller.abort(), ms);
-  try{
-    const res = await fetch(url, {...options, signal:controller.signal});
-    clearTimeout(timer); return res;
-  }catch(err){ clearTimeout(timer); throw err; }
+// 已更換為目前試算表部署的正確網址
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbzuaOT8b-HMWPbjkqJ2Oh-uDtH4OXBvE9ikHH1je4uxGSzjYK15LdCxfHzlYhk29ci/exec';
+
+// 改為 28 秒寬容逾時 + 自動背景重試機制，徹底避免冷啟動中斷
+async function fetchWithTimeout(url, options={}, ms=28000, retries=1){
+  for(let i = 0; i <= retries; i++){
+    const controller = new AbortController();
+    const timer = setTimeout(()=>controller.abort(), ms);
+    try{
+      const res = await fetch(url, {...options, signal:controller.signal});
+      clearTimeout(timer);
+      if(!res.ok) throw new Error(`HTTP ${res.status}`);
+      return res;
+    }catch(err){
+      clearTimeout(timer);
+      if(i === retries) throw err;
+      await new Promise(r => setTimeout(r, 1000));
+    }
+  }
 }
 
 let cachedOrders = null, lastFetch = 0;
@@ -404,9 +415,28 @@ function updateCachedOrder(id, changes){
 async function fetchOrdersFromSheet(force=false){
   const now = Date.now();
   if(!force && cachedOrders && (now - lastFetch < CACHE_TTL)) return [...cachedOrders];
-  const res = await fetchWithTimeout(GAS_URL, {}, 12000);
+  const res = await fetchWithTimeout(GAS_URL + (GAS_URL.includes('?') ? '&' : '?') + 't=' + now, {}, 28000);
   const data = await res.json();
-  cachedOrders = data.orders || [];
+  
+  // 雙向相容：不管是回傳 {orders: [...]} 還是直接回傳陣列 [...]
+  const rawList = Array.isArray(data) ? data : (data.orders || []);
+  
+  // 欄位標準化 mapping，確保後端各種 key 都能正確接到前端欄位
+  cachedOrders = rawList.map(item => ({
+    id: item.id || item.ID || Date.now(),
+    name: item.name || item['姓名'] || '',
+    cls: item.cls || item.className || item['班級'] || '',
+    drinkName: item.drinkName || item.drink || item['飲料'] || '',
+    size: item.size || item['杯型'] || '大杯',
+    price: Number(item.price || item['價格'] || 0),
+    sugar: item.sugar || item['糖度'] || '',
+    ice: item.ice || item['冰量'] || '',
+    topping: item.topping || item.toppings || item['加料'] || '不加料',
+    note: item.note || item['備註'] || '',
+    paid: (item.paid === true || item.paid === '已付' || item['付款'] === '已付'),
+    time: item.time || item['時間'] || ''
+  }));
+  
   lastFetch = now;
   return [...cachedOrders];
 }
@@ -426,7 +456,7 @@ async function syncPaidStatus(id, paid){
   updateCachedOrder(id, {paid});
   updatePaidUI(id, paid);
   try{
-    await fetchWithTimeout(GAS_URL,{method:'POST',body:JSON.stringify({action:'setPaid',id,paid})},12000);
+    await fetchWithTimeout(GAS_URL,{method:'POST',body:JSON.stringify({action:'setPaid',id,paid})},28000);
     showToast(paid?'✅ 已標記收款':'⏺ 已取消收款','#27AE60');
     if(cachedOrders && document.getElementById('page-admin').classList.contains('active')) renderTotals(cachedOrders);
     if(document.getElementById('page-payment').classList.contains('active')) renderPayment();
@@ -532,7 +562,7 @@ function toggleOrdering(open){ requireAuth(open?'輸入密碼開啟點餐':'輸�
   fetch(GAS_URL,{method:'POST',body:JSON.stringify({action:'setStatus',open})}).catch(()=>{});
 }); if(!adminUnlocked) document.getElementById('orderToggle').checked = !open; }
 function applyOrderingState(open){ document.getElementById('toggleLabel').textContent=open?'接單中':'已截止'; document.getElementById('orderToggle').checked=open; document.getElementById('orderClosed').style.display=open?'none':'block'; document.getElementById('submitBtn').style.display=open?'block':'none'; }
-function loadOrderingState(){ fetchWithTimeout(GAS_URL+'?action=getStatus',{},12000).then(r=>r.json()).then(d=>{ applyOrderingState(d.open!==false); }).catch(()=>{}); }
+function loadOrderingState(){ fetchWithTimeout(GAS_URL+'?action=getStatus',{},28000).then(r=>r.json()).then(d=>{ applyOrderingState(d.open!==false); }).catch(()=>{}); }
 
 setInterval(loadOrderingState, 45000);
 
@@ -668,7 +698,7 @@ function submitOrder(){
   };
   
   showToast('⏳ 訂單傳送中...','#333');
-  fetchWithTimeout(GAS_URL,{method:'POST',body:JSON.stringify({...order,action:'add'})},12000)
+  fetchWithTimeout(GAS_URL,{method:'POST',body:JSON.stringify({...order,action:'add'})},28000)
     .then(()=>{ invalidateCache(); showToast('✅ 訂單送出成功'); })
     .catch(()=>{ showToast('⚠️ 伺服器忙碌，請告知股長確認','#E8A020'); });
 
@@ -778,7 +808,6 @@ function renderSum(arr){
   });
 }
 
-// 修正：補齊容錯保護，確保就算資料有缺失也能正常畫出訂單清單
 function renderList(arr){
   const list = document.getElementById('ordersList');
   if(!arr || !arr.length){
@@ -803,7 +832,6 @@ function makeOrderRow(o){
   return row;
 }
 
-// 修正：還原相容原本的 boolean 接收方式
 window.togglePaid = (id, isChecked) => {
   const chk = document.querySelector(`input.pay-chk[data-id="${id}"]`);
   if(!adminUnlocked && chk) chk.checked = !isChecked;
@@ -812,7 +840,7 @@ window.togglePaid = (id, isChecked) => {
 
 window.deleteOrder = (id) => {
   requireAuth('請輸入密碼刪除訂單',()=>{
-    fetchWithTimeout(GAS_URL,{method:'POST',body:JSON.stringify({action:'delete',id})},12000).then(()=>{
+    fetchWithTimeout(GAS_URL,{method:'POST',body:JSON.stringify({action:'delete',id})},28000).then(()=>{
       invalidateCache();
       if(document.getElementById('page-admin').classList.contains('active')) renderAdmin();
       if(document.getElementById('page-payment').classList.contains('active')) renderPayment();
@@ -835,7 +863,7 @@ function clearOrders(){
       },3000);
       return;
     }
-    fetchWithTimeout(GAS_URL,{method:'POST',body:JSON.stringify({action:'clearAll'})},12000).then(()=>{
+    fetchWithTimeout(GAS_URL,{method:'POST',body:JSON.stringify({action:'clearAll'})},28000).then(()=>{
       invalidateCache();
       renderAdmin();
       renderPayment();
