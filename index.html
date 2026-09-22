@@ -11,7 +11,6 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:'Noto Sans TC',sans-serif;background:#FFF9F5;color:#2A1010;min-height:100vh;}
-
 nav{background:#D0232A;display:flex;align-items:center;justify-content:space-between;padding:0 20px;height:54px;position:sticky;top:0;z-index:200;box-shadow:0 2px 12px rgba(208,35,42,.12);}
 .logo-area{display:flex;align-items:baseline;gap:8px;}
 .logo-text{font-size:22px;font-weight:900;color:#fff;letter-spacing:1px;}
@@ -20,7 +19,6 @@ nav{background:#D0232A;display:flex;align-items:center;justify-content:space-bet
 .nav-tab{padding:6px 16px;border-radius:20px;border:1.5px solid rgba(255,255,255,.4);background:transparent;color:rgba(255,255,255,.8);font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;transition:all .15s;}
 .nav-tab.active{background:#fff;color:#D0232A;border-color:#fff;}
 .nav-tab:hover:not(.active){background:rgba(255,255,255,.15);color:#fff;}
-
 .toggle-wrap{display:flex;align-items:center;gap:8px;}
 .toggle-label{font-size:12px;font-weight:700;color:rgba(255,255,255,.85);}
 .toggle-switch{position:relative;width:44px;height:24px;flex-shrink:0;}
@@ -29,31 +27,25 @@ nav{background:#D0232A;display:flex;align-items:center;justify-content:space-bet
 .toggle-slider::before{content:'';position:absolute;width:18px;height:18px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.2s;}
 .toggle-switch input:checked+.toggle-slider{background:#27AE60;}
 .toggle-switch input:checked+.toggle-slider::before{transform:translateX(20px);}
-
 .order-closed{background:linear-gradient(135deg,#555,#333);border-radius:16px;padding:22px 20px;margin-bottom:20px;text-align:center;color:#fff;}
 .order-closed h2{font-size:20px;font-weight:900;margin-bottom:6px;}
 .order-closed p{font-size:14px;opacity:.75;}
-
 .page{display:none;} .page.active{display:block;}
-
 .order-wrap{max-width:660px;margin:0 auto;padding:20px 14px 80px;}
 .hero{background:linear-gradient(135deg,#A51A20,#D0232A);border-radius:16px;padding:22px 20px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;position:relative;overflow:hidden;}
 .hero::before{content:'';position:absolute;right:-20px;top:-20px;width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,.07);}
 .hero-text h1{color:#fff;font-size:22px;font-weight:900;}
 .hero-text p{color:rgba(255,255,255,.75);font-size:13px;margin-top:4px;}
 .hero-emoji{font-size:52px;opacity:.9;}
-
 .card{background:#fff;border:1.5px solid #F0D8D0;border-radius:12px;padding:16px;margin-bottom:14px;}
 .card-title{font-size:13px;font-weight:700;color:#D0232A;letter-spacing:.5px;margin-bottom:10px;}
 .field-input{width:100%;padding:10px 14px;border:1.5px solid #F0D8D0;border-radius:8px;font-size:15px;font-family:inherit;background:#FFF3EE;outline:none;transition:border .2s;}
 .field-input:focus{border-color:#D0232A;}
-
 .cat-wrap{overflow-x:auto;padding-bottom:2px;margin-bottom:14px;}
 .cat-wrap::-webkit-scrollbar{height:0;}
 .cat-row{display:flex;gap:7px;width:max-content;}
 .cat-btn{padding:6px 15px;border-radius:20px;border:1.5px solid #F0D8D0;background:#fff;font-family:inherit;font-size:13px;font-weight:600;color:#666;cursor:pointer;white-space:nowrap;transition:all .15s;}
 .cat-btn.active{background:#D0232A;border-color:#D0232A;color:#fff;}
-
 .drink-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:14px;}
 .drink-card{background:#fff;border:1.5px solid #F0D8D0;border-radius:11px;padding:13px 11px;cursor:pointer;position:relative;transition:all .15s;}
 .drink-card:hover{border-color:#D0232A;}
@@ -63,13 +55,11 @@ nav{background:#D0232A;display:flex;align-items:center;justify-content:space-bet
 .drink-prices{display:flex;gap:4px;margin-top:6px;flex-wrap:wrap;}
 .price-tag{font-size:11px;font-weight:600;color:#D0232A;background:#FDECEA;padding:2px 7px;border-radius:10px;}
 .drink-tag{font-size:10px;color:#fff;background:#E8A020;padding:1px 6px;border-radius:6px;margin-bottom:4px;display:inline-block;}
-
 .opt-section{margin-bottom:14px;}
 .opt-label{font-size:12px;font-weight:700;color:#999;text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:7px;}
 .chips{display:flex;flex-wrap:wrap;gap:6px;}
 .chip{padding:5px 13px;border-radius:20px;border:1.5px solid #F0D8D0;background:#FFF3EE;font-family:inherit;font-size:13px;font-weight:500;color:#2A1010;cursor:pointer;transition:all .15s;}
 .chip.selected{background:#2A1010;border-color:#2A1010;color:#fff;}
-
 .size-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px;margin-bottom:8px;}
 .size-card{border:2px solid #F0D8D0;border-radius:10px;padding:12px 8px;cursor:pointer;text-align:center;background:#fff;transition:all .15s;position:relative;}
 .size-card:hover:not(.disabled){border-color:#D0232A;}
@@ -79,18 +69,14 @@ nav{background:#D0232A;display:flex;align-items:center;justify-content:space-bet
 .size-icon{font-size:20px;}
 .size-label{font-size:13px;font-weight:700;margin-top:4px;}
 .size-price{font-size:14px;font-weight:900;color:#D0232A;margin-top:2px;}
-
 .note-hint{font-size:12px;color:#E8A020;margin-top:7px;font-weight:700;}
-
 .submit-btn{width:100%;padding:15px;background:#D0232A;border:none;border-radius:12px;color:#fff;font-size:16px;font-weight:700;font-family:inherit;cursor:pointer;transition:all .15s;box-shadow:0 4px 16px rgba(208,35,42,.12);}
 .submit-btn:hover{background:#A51A20;transform:translateY(-1px);}
-
 .admin-wrap{max-width:960px;margin:0 auto;padding:20px 14px 60px;}
 .admin-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:10px;}
 .admin-top h2{font-size:20px;font-weight:900;}
 .danger-btn{padding:9px 20px;background:#C0392B;border:none;border-radius:8px;color:#fff;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;}
 .danger-btn.confirm-state{background:#E67E22;}
-
 .total-bar{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px;}
 .total-card{background:#fff;border:1.5px solid #F0D8D0;border-radius:12px;padding:14px 10px;text-align:center;}
 .total-card.hi{background:#FDECEA;border-color:#D0232A;}
@@ -99,7 +85,6 @@ nav{background:#D0232A;display:flex;align-items:center;justify-content:space-bet
 .tc-label{font-size:11px;color:#999;margin-top:3px;font-weight:600;}
 .tc-sub{font-size:11px;color:#27AE60;font-weight:700;margin-top:2px;}
 .tc-sub.warn{color:#E67E22;}
-
 .summary-box{background:#D0232A;border-radius:14px;padding:18px;margin-bottom:20px;color:#fff;}
 .summary-box h3{font-size:15px;font-weight:700;margin-bottom:12px;color:rgba(255,255,255,.85);}
 .sum-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;}
@@ -110,7 +95,6 @@ nav{background:#D0232A;display:flex;align-items:center;justify-content:space-bet
 .sum-vars{display:flex;flex-direction:column;gap:3px;margin-top:2px;}
 .sum-var{font-size:11.5px;color:rgba(255,255,255,.85);display:flex;justify-content:space-between;align-items:center;background:rgba(0,0,0,.12);border-radius:5px;padding:3px 8px;}
 .sum-var-cnt{font-weight:900;color:#FFD580;font-size:12px;margin-left:6px;flex-shrink:0;}
-
 .orders-head{font-size:15px;font-weight:700;margin-bottom:10px;}
 .order-row{background:#fff;border:1.5px solid #F0D8D0;border-radius:10px;padding:13px 15px;margin-bottom:8px;display:flex;align-items:flex-start;gap:12px;transition:all .2s;}
 .order-row.paid{border-color:#9EE0B5;background:#F4FFF8;}
@@ -127,19 +111,15 @@ nav{background:#D0232A;display:flex;align-items:center;justify-content:space-bet
 .pay-txt{font-size:11px;color:#999;}
 .del-btn{margin-top:4px;background:none;border:1.5px solid #f5c0bc;border-radius:6px;padding:2px 6px;font-size:13px;cursor:pointer;color:#C0392B;transition:all .15s;}
 .del-btn:hover{background:#FDECEA;}
-
 .empty-state{text-align:center;padding:56px 20px;color:#999;}
 .empty-state .ei{font-size:52px;margin-bottom:12px;}
-
 .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#27AE60;color:#fff;padding:11px 26px;border-radius:30px;font-size:14px;font-weight:600;opacity:0;transition:opacity .3s;pointer-events:none;z-index:999;white-space:nowrap;}
 .toast.show{opacity:1;}
-
 @media(max-width:480px){
 .total-bar{grid-template-columns:1fr 1fr;}
 .size-card{padding:10px 4px;}
 .size-icon{font-size:17px;}
 }
-
 .payment-order-list{margin-top:12px;background:#fff5f0;border-radius:12px;overflow:hidden;}
 .payment-order-item{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border-bottom:1px solid #F0D8D0;background:#fff;}
 .payment-order-item:last-child{border-bottom:none;}
@@ -382,11 +362,10 @@ function checkSeasonTag(tag){
 
 let selDrink=null, selSize=null, selSugar='正常', selIce='正常冰', selCat='飲中甜品', selTopping=TOPPING_OPTS[0];
 
-// 確保開頭全小寫 https:// 以及完整的部署 ID
+// 正確小寫且完整的 Apps Script URL
 const GAS_URL = 'https://script.google.com/macros/s/AKfycbzuaOT8b-HMWPbjkqJ2Oh-uDtH4OXBvE9ikHH1je4uxGSzjYK15LdCxfHzlYhk29ci-/exec';
 
-// 30 秒寬容超時並自動在背景重試 1 次
-async function fetchWithTimeout(url, options={}, ms=30000, retries=1){
+async function fetchWithTimeout(url, options={}, ms=35000, retries=1){
   for(let i = 0; i <= retries; i++){
     const controller = new AbortController();
     const timer = setTimeout(()=>controller.abort(), ms);
@@ -416,25 +395,25 @@ async function fetchOrdersFromSheet(force=false){
   const now = Date.now();
   if(!force && cachedOrders && (now - lastFetch < CACHE_TTL)) return [...cachedOrders];
   const reqUrl = GAS_URL + (GAS_URL.includes('?') ? '&' : '?') + 't=' + now;
-  const res = await fetchWithTimeout(reqUrl, {}, 30000);
+  const res = await fetchWithTimeout(reqUrl, {}, 35000);
   const data = await res.json();
   
-  // 容錯支援：相容陣列、data.orders 或中英文字段
+  // 相容純陣列與 { orders: [...] }
   const rawList = Array.isArray(data) ? data : (data.orders || []);
   
   cachedOrders = rawList.map(item => ({
-    id: item.id || item.ID || Date.now(),
-    name: item.name || item['姓名'] || '',
-    cls: item.cls || item.className || item['班級'] || '',
-    drinkName: item.drinkName || item.drink || item['飲料'] || '',
-    size: item.size || item['杯型'] || '大杯',
+    id: String(item.id || item.ID || Date.now()),
+    name: String(item.name || item['姓名'] || ''),
+    cls: String(item.cls || item.className || item['班級'] || ''),
+    drinkName: String(item.drinkName || item.drink || item['飲料'] || ''),
+    size: String(item.size || item['杯型'] || '大杯'),
     price: Number(item.price || item['價格'] || 0),
-    sugar: item.sugar || item['糖度'] || '',
-    ice: item.ice || item['冰量'] || '',
-    topping: item.topping || item.toppings || item['加料'] || '不加料',
-    note: item.note || item['備註'] || '',
+    sugar: String(item.sugar || item['糖度'] || ''),
+    ice: String(item.ice || item['冰量'] || ''),
+    topping: String(item.topping || item.toppings || item['加料'] || '不加料'),
+    note: String(item.note || item['備註'] || ''),
     paid: (item.paid === true || item.paid === '已付' || item['付款'] === '已付'),
-    time: item.time || item['時間'] || ''
+    time: String(item.time || item['時間'] || '')
   }));
   
   lastFetch = now;
@@ -456,7 +435,7 @@ async function syncPaidStatus(id, paid){
   updateCachedOrder(id, {paid});
   updatePaidUI(id, paid);
   try{
-    await fetchWithTimeout(GAS_URL,{method:'POST',body:JSON.stringify({action:'setPaid',id,paid})},30000);
+    await fetchWithTimeout(GAS_URL,{method:'POST',body:JSON.stringify({action:'setPaid',id,paid})},35000);
     showToast(paid?'✅ 已標記收款':'⏺ 已取消收款','#27AE60');
     if(cachedOrders && document.getElementById('page-admin').classList.contains('active')) renderTotals(cachedOrders);
     if(document.getElementById('page-payment').classList.contains('active')) renderPayment();
@@ -562,7 +541,7 @@ function toggleOrdering(open){ requireAuth(open?'輸入密碼開啟點餐':'輸�
   fetch(GAS_URL,{method:'POST',body:JSON.stringify({action:'setStatus',open})}).catch(()=>{});
 }); if(!adminUnlocked) document.getElementById('orderToggle').checked = !open; }
 function applyOrderingState(open){ document.getElementById('toggleLabel').textContent=open?'接單中':'已截止'; document.getElementById('orderToggle').checked=open; document.getElementById('orderClosed').style.display=open?'none':'block'; document.getElementById('submitBtn').style.display=open?'block':'none'; }
-function loadOrderingState(){ fetchWithTimeout(GAS_URL+'?action=getStatus',{},30000).then(r=>r.json()).then(d=>{ applyOrderingState(d.open!==false); }).catch(()=>{}); }
+function loadOrderingState(){ fetchWithTimeout(GAS_URL+'?action=getStatus',{},35000).then(r=>r.json()).then(d=>{ applyOrderingState(d.open!==false); }).catch(()=>{}); }
 
 setInterval(loadOrderingState, 45000);
 
@@ -698,7 +677,7 @@ function submitOrder(){
   };
   
   showToast('⏳ 訂單傳送中...','#333');
-  fetchWithTimeout(GAS_URL,{method:'POST',body:JSON.stringify({...order,action:'add'})},30000)
+  fetchWithTimeout(GAS_URL,{method:'POST',body:JSON.stringify({...order,action:'add'})},35000)
     .then(()=>{ invalidateCache(); showToast('✅ 訂單送出成功'); })
     .catch(()=>{ showToast('⚠️ 伺服器忙碌，請告知股長確認','#E8A020'); });
 
@@ -840,7 +819,7 @@ window.togglePaid = (id, isChecked) => {
 
 window.deleteOrder = (id) => {
   requireAuth('請輸入密碼刪除訂單',()=>{
-    fetchWithTimeout(GAS_URL,{method:'POST',body:JSON.stringify({action:'delete',id})},30000).then(()=>{
+    fetchWithTimeout(GAS_URL,{method:'POST',body:JSON.stringify({action:'delete',id})},35000).then(()=>{
       invalidateCache();
       if(document.getElementById('page-admin').classList.contains('active')) renderAdmin();
       if(document.getElementById('page-payment').classList.contains('active')) renderPayment();
@@ -863,7 +842,7 @@ function clearOrders(){
       },3000);
       return;
     }
-    fetchWithTimeout(GAS_URL,{method:'POST',body:JSON.stringify({action:'clearAll'})},30000).then(()=>{
+    fetchWithTimeout(GAS_URL,{method:'POST',body:JSON.stringify({action:'clearAll'})},35000).then(()=>{
       invalidateCache();
       renderAdmin();
       renderPayment();
